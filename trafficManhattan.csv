@@ -1,0 +1,18 @@
+,id,speed,travel_time,status,borough,link_name,hour,date,day
+2,399,32.93,73,0,Manhattan,TBB W - FDR S MANHATTAN TRUSS - E116TH STREET,13:44:03.000,2021-03-10,day
+9,149,26.09,271,0,Manhattan,BQE N Atlantic Ave - BKN Bridge Manhattan Side,13:44:03.000,2021-03-10,day
+10,222,3.10,1909,-101,Manhattan,FDR S 63rd - 25th St,13:44:03.000,2021-03-10,day
+34,223,26.71,97,0,Manhattan,FDR S Catherine Slip - BKN Bridge Manhattan Side,13:43:11.000,2021-03-10,day
+50,145,0.00,0,-101,Manhattan,BKN Bridge Manhattan Side - FDR N Catherine Slip,13:43:11.000,2021-03-10,day
+66,1,2.48,2011,0,Manhattan,11th ave n ganservoort - 12th ave @ 40th st,13:43:11.000,2021-03-10,day
+67,221,26.71,376,0,Manhattan,FDR S 25th St - Catherine Slip,13:43:11.000,2021-03-10,day
+70,215,0.00,0,-101,Manhattan,FDR N 25th - 63rd St,13:43:11.000,2021-03-10,day
+71,217,34.17,297,-101,Manhattan,FDR N Catherine Slip - 25th St,13:43:11.000,2021-03-10,day
+72,4,2.48,1217,0,Manhattan,12th Ave N 40th - 57th St,13:43:11.000,2021-03-10,day
+73,2,0.00,0,-101,Manhattan,11th ave s ganservoort - west st @ spring st,13:43:11.000,2021-03-10,day
+76,106,1.86,1129,0,Manhattan,12th Ave S 57th St - 45th St,13:43:11.000,2021-03-10,day
+77,3,1.86,3167,0,Manhattan,12th ave @ 45th - 11 ave ganservoort st,13:43:11.000,2021-03-10,day
+86,325,19.88,273,0,Manhattan,LINCOLN TUNNEL E SOUTH TUBE - NJ - NY,13:43:07.000,2021-03-10,day
+93,150,21.12,450,0,Manhattan,BQE N Atlantic Ave - MAN Bridge Manhattan Side,13:43:04.000,2021-03-10,day
+94,450,47.22,416,0,Manhattan,Westside Hwy S GWB - 57th St,13:43:04.000,2021-03-10,day
+98,445,0.00,0,-101,Manhattan,West St S Spring St - BBT Manhattan Portal outbound,13:43:04.000,2021-03-10,day
