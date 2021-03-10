@@ -58,21 +58,18 @@ def columnasAcotadas():
                 line_count = 0
                 columnasAcotadas = ["id", "speed", "traveltime", "weekday", "status","borough", "link_name", "hour", "date", "day"]
                 #rellenarSalida.writerow(columnas_acotadas)
-                for row in csv_reader:    
-                    columnasAcotadas[0:9]=row[0:9]             
-                    #fecha_año=int(row[8].split("-")[0])
-                    #fecha_mes=int(row[8].split("-")[1])
-                    #fecha_dia=int(row[8].split("-")[2])
-
-                    #columnasAcotadas[9]=diaSemana(fecha_año,fecha_mes,fecha_dia)
-                    #print(columnasAcotadas[9])
-
-                    rellenarSalida.writerow(columnasAcotadas)
-     
-
-                        
-              
+                for row in csv_reader: 
+                    if line_count>=1: 
+                        fecha_split= row[8].split("-")   
+                        fecha_año=int(fecha_split[0])
+                        fecha_mes=int(fecha_split[1])
+                        fecha_dia=int(fecha_split[2])
+                        columnasAcotadas[9]=diaSemana(fecha_año,fecha_mes,fecha_dia)
                     
+                    columnasAcotadas[0:9]=row[0:9]   
+                
+                    rellenarSalida.writerow(columnasAcotadas)
+        
                     if line_count%100000==0:
                         print(line_count)
                     line_count += 1
