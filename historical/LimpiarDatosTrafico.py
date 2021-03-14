@@ -5,18 +5,22 @@ from pathlib import Path
 #import requests
 import json
 from urllib.request import urlopen
+import os
 
 
 def acotarDatosNY(): 
 
     #ESTE MÉTODO ES PARA COGER LOS DATOS DEL .CSV DE TRÁFICO INICIAL Y ACOTARLOS A SÓLO LOS DATOS DE MANHATTAN, QUE SERÁN LOS UTILIZADOS PARA EL TFG
 
-    data_folder = Path("datos/dd")
+ 
+    data_folder = Path(os.getcwd().split("\TFG")[0] + "/TFG/originals")
     file_to_open = data_folder / "DOT_Traffic_Speeds_NBE.csv"
     #file_to_open = data_folder / "condicionesClimaticas.csv"
 
+    data_result = os.getcwd().split("\TFG")[0] + "/TFG/historical_data/salidaManhattan.csv"
+
     with open(file_to_open) as csv_file:
-        with open('salidaManhattan.csv', mode='w', newline='') as salida:
+        with open(data_result, mode='w', newline='') as salida:
             csv_reader = csv.reader(csv_file, delimiter=',')
             rellenarSalida = csv.writer(salida, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             line_count = 0
@@ -41,11 +45,13 @@ def diaSemana(año,mes,dia):
 
 def columnasAcotadas():
     #ESTE MÉTODO UTILIZA EL FICHERO QUE SE CREÓ EN EL ACOTARDATOSNY() PARA COGER Y PREPARAR LAS FILAS QUE HARÁN FALTA DEL FICHERO DE TRÁFICO.
-    file_to_open ="salidaManhattan.csv"
+    
+    file_to_open =  os.getcwd().split("\TFG")[0] + "/TFG/historical_data/salidaManhattan.csv"
+    data_result = os.getcwd().split("\TFG")[0] + "/TFG/historical_data/UnionManhattan.csv"
 
     with open(file_to_open) as csv_file:
-        with open('salidaManhattan.csv', mode='r', newline='') as csv_file1:
-            with open('UnionManhattan.csv', mode='w', newline='') as salida:
+        with open(file_to_open, mode='r', newline='') as csv_file1:
+            with open(data_result, mode='w', newline='') as salida:
                 csv_reader = csv.reader(csv_file, delimiter=',')
                 rellenarSalida = csv.writer(salida, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 line_count = 0
@@ -91,12 +97,16 @@ def columnasAcotadas():
 def unirContaminacion():
     #ESTE MÉTODO UNE EL FICHERO RESULTANTE DEL MÉTODO COLUMNASACOTADAS() AL FICHERO DE CONTAMINACIÓN, UNIENDO LA CONTAMINACIÓN DE CADA UNA DE LAS FILAS
     #DEL FICHERO A LA CONTAMINACIÓN CORRESPONDIENTE EN ESE DÍA
-    data_folder = Path("datos")
+    
+    data_folder = Path(os.getcwd().split("\TFG")[0] + "/TFG/originals")
     fileContaminacion = data_folder / "calidadAire.csv"
     line_count=0
-    
-    with open("UnionManhattan.csv", mode='r', newline='') as csv_file:
-            with open("unidos1.csv", mode="w", newline='') as salida:
+    file_to_open = os.getcwd().split("\TFG")[0] + "/TFG/historical_data/UnionManhattan.csv"
+    data_result = os.getcwd().split("\TFG")[0] + "/TFG/historical_data/Traffic+AirQuality.csv"
+
+
+    with open(file_to_open, mode='r', newline='') as csv_file:
+            with open(data_result, mode="w", newline='') as salida:
                 csv_reader = csv.reader(csv_file, delimiter=',')
                 
                 rellenarSalida = csv.writer(salida, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -135,19 +145,6 @@ def unirContaminacion():
                 #print(f'Processed {line_count} lines.')            
                         
                         
-def probandoAPI():
-    #MÉTODO DE PRUEBA PARA PROBAR A UTILIZAR LAS API
-
-    #response = requests.get("https://aqicn.org/city/usa/newyork/")
-    response = urlopen("https://aqicn.org/city/usa/newyork/")
-    #text = json.dumps(response,sort_keys=True, indent=4)
-    #print(text)
-    html_bytes = response.read()
-    html = html_bytes.decode("utf-8")
-    print(html)
-    #print(response.json())
-
-
 def numeroLineasArchivo(ruta, nombrearchivo):
     #DADA UNA RUTA Y EL NOMBRE DEL ARCHIVO, DEVUELVE EL NÚMERO DE LÍNEAS TOTALES DEL FICHERO. SE CREÓ PARA INTENTAR REALIZAR EL 
     #ÁRBOL BINARIO DE BÚSQUEDA, PARA EL QUE SE NECESITA SABER EL TAMAÑO DEL ARCHIVO.
@@ -163,16 +160,18 @@ def arbolUnionContaminacion():
 
     #MÉTODO EN PROCESO - INTENTAR CREAR UN ÁRBOL BINARIO DE BÚSQUEDA QUE SIRVA COMO ALTERNATIVA AL MÉTODO UNIRCONTAMINACION() Y QUE SE EJECUTE COMPLETAMENTE EN UN ORDEN 
     #LOGARÍTMICO MUCHÍSIMO MENOR AL TARDADO POR EL OTRO MÉTODO - ADEMÁS PODRÍA SERVIR COMO BASE PARA HACER EL MÉTODO DE UNIÓN DEL .CSV AL FICHERO DE DATOS DEL CLIMA. 
-    data_folder = Path("datos")
+    data_folder = Path(os.getcwd().split("\TFG")[0] + "/TFG/originals")
     nombrearchivo = "calidadAire.csv"
     fileContaminacion = data_folder / "calidadAire.csv"
     line_count=0
     
     numLineas = numeroLineasArchivo(data_folder, nombrearchivo)
     
+    file_to_open = os.getcwd().split("\TFG")[0] + "/TFG/historical_data/UnionManhattan.csv"
+    data_result = os.getcwd().split("\TFG")[0] + "/TFG/pruebas_juanma/unidosArbol.csv"
     
-    with open("UnionManhattan.csv", mode='r', newline='') as csv_file:
-            with open("unidosArbol.csv", mode="w", newline='') as salida:
+    with open(file_to_open, mode='r', newline='') as csv_file:
+            with open(data_result, mode="w", newline='') as salida:
                 csv_reader = csv.reader(csv_file, delimiter=',')
                 
                 rellenarSalida = csv.writer(salida, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -264,7 +263,7 @@ def listaCallesDistintas():
     
 #columnasAcotadas()
 
-#unirContaminacion()
+unirContaminacion()
 
 #probandoAPI()
 
@@ -272,4 +271,4 @@ def listaCallesDistintas():
 
 #comprobarRelleno("","unidos1.csv")
 
-listaCallesDistintas()
+#listaCallesDistintas()
