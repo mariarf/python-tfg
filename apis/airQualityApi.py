@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+from urllib.request import urlopen
 
 #if _name_ =='_airQualityApi_':
 url= 'https://api.waqi.info/feed/newyork/?token=c889c21d8944202ace2d717bb97db9ab84160449'
@@ -30,7 +31,7 @@ if response.status_code == 200:
     #import os
 
     current_dir = os.getcwd().split("\TFG")[0] 
-    filename = current_dir + "/TFG/datos/juanma.csv"
+    filename = current_dir + "/TFG/pruebas_maria/pepe.csv"
 
     content = response.content
     
@@ -38,3 +39,15 @@ if response.status_code == 200:
     file.write(content)
     file.close()
     
+
+    def probandoAPI():
+        #MÉTODO DE PRUEBA PARA PROBAR A UTILIZAR LAS API
+
+        #response = requests.get("https://aqicn.org/city/usa/newyork/")
+        response = urlopen("https://aqicn.org/city/usa/newyork/")
+        #text = json.dumps(response,sort_keys=True, indent=4)
+        #print(text)
+        html_bytes = response.read()
+        html = html_bytes.decode("utf-8")
+        print(html)
+        #print(response.json())

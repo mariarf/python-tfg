@@ -4,7 +4,7 @@
 # pip install pandas
 # pip install sodapy
 #import metodosFormatos
-from apis.metodosFormatos import *
+#from apis.metodosFormatos import *
 import pandas as pd
 import csv
 from sodapy import Socrata
@@ -15,6 +15,8 @@ import json
 
 def dataIngestion(dataLimit, date):
 
+    date = "data_as_of >" + "'" + date + "'" 
+
     # Unauthenticated client only works with public data sets. Note 'None'
     # in place of application token, and no username or password:
     client = Socrata("data.cityofnewyork.us", None)
@@ -23,22 +25,13 @@ def dataIngestion(dataLimit, date):
     # First dataLimit results, returned as JSON from API / converted to Python list of
     # dictionaries by sodapy.
     
-    results = client.get("i4gi-tjb9", limit=dataLimit, borough = "Manhattan", where = "data_as_of > '2021-03-03T00:00:00.000' ")
+    results = client.get("i4gi-tjb9", limit=dataLimit, borough = "Manhattan", where = date)
 
     # Convert to pandas DataFrame
     results_df = pd.DataFrame.from_records(results)
 
-    """
-    #leyendo datos con request
-    url= 'https://data.cityofnewyork.us/resource/i4gi-tjb9.json'
-    results=requests.get(url, timeout=10)
-        
-    #print(results.content)
-    response_json = json.loads(results.text)
-    # Convert to pandas DataFrame
-    results_df = pd.DataFrame.from_records(response_json)
-    """
-    print(results_df["data_as_of"])
+    lastRegister = results_df.loc[results_df.index[-1], "data_as_of"]
+    
 
     #separando datos de fecha en fecha y hora
     results_df["time"] = results_df["data_as_of"].str.split("T").str.get(1) 
@@ -51,14 +44,14 @@ def dataIngestion(dataLimit, date):
     #filtrando datos
     traffic = results_df[["id", "speed", "travel_time", "status", "date", "time","borough", "link_name"]]
     
-    #boroughFilter = traffic[traffic["borough"] == "Manhattan"]
     
     #guardando 
     current_dir = os.getcwd().split("\TFG")[0] 
-    filename = current_dir + "/TFG/apis_data/trafficData_dataIngestion.csv"
+    filename = current_dir + "/TFG/apis_data/trafficData_dataIngestion2.csv"
 
-   # boroughFilter.to_csv(filename, index=False)
     traffic.to_csv(filename, index=False)
+
+    return lastRegister
     
 
 def columnasAcotadas():
@@ -97,5 +90,7 @@ def columnasAcotadas():
                 
             print(f'Processed {line_count} lines.')
     
-#dataIngestion(2000, 50)
-columnasAcotadas()
+lastRegister = dataIngestion(100000, "2021-03-13T00:00:00.000")
+print(lastRegister)
+#dataIngestion(1000, "2021-03-12T00:00:00.000")
+#columnasAcotadas()
