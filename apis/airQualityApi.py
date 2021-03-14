@@ -1,5 +1,6 @@
 import requests
 import json
+import os
 
 #if _name_ =='_airQualityApi_':
 url= 'https://api.waqi.info/feed/newyork/?token=c889c21d8944202ace2d717bb97db9ab84160449'
@@ -18,16 +19,22 @@ if response.status_code == 200:
     data = response_json["data"]["forecast"]["daily"]["o3"][0]
     print(data)
     
-"""
+    """
     #colocando en json para acceder a una variable con request
     response_json = response.json()  #esto es un diccionario
     status = response_json["status"]
     print(status)
-"""
-"""
+    """
+
     #guardando datos de la pagina en un archivo de escritura binaria
+    #import os
+
+    current_dir = os.getcwd().split("\TFG")[0] 
+    filename = current_dir + "/TFG/datos/juanma.csv"
+
     content = response.content
-    file = open('nombrearchivo de escritura binaria','wb')
+    
+    file = open(filename,'wb')
     file.write(content)
     file.close()
-"""
+    
