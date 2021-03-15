@@ -4,7 +4,8 @@
 # pip install pandas
 # pip install sodapy
 #import metodosFormatos
-#from apis.metodosFormatos import *
+from numpy import empty
+from metodosFormatos import *
 import pandas as pd
 import csv
 from sodapy import Socrata
@@ -26,9 +27,11 @@ def dataIngestion(dataLimit, date):
     # dictionaries by sodapy.
     
     results = client.get("i4gi-tjb9", limit=dataLimit, borough = "Manhattan", where = date)
+    
 
     # Convert to pandas DataFrame
     results_df = pd.DataFrame.from_records(results)
+    print(results_df.head())
 
     lastRegister = results_df.loc[results_df.index[-1], "data_as_of"]
     
@@ -47,17 +50,35 @@ def dataIngestion(dataLimit, date):
     
     #guardando 
     current_dir = os.getcwd().split("\TFG")[0] 
-    filename = current_dir + "/TFG/apis_data/trafficData_dataIngestion2.csv"
+    filename = current_dir + "/TFG/apis_data/trafficData_dataIngestion.csv"
 
     traffic.to_csv(filename, index=False)
+    columnasAcotadas()
+
 
     return lastRegister
     
+def historicalTrafficApi():
+    #RESULTADO DE COLUMNASACOTADAS
+    file_to_open = os.getcwd().split("\TFG")[0] + "/TFG/apis_data/trafficManhattan_dataIngestion.csv"
+    #EL HISTORICO DE DATOS DE LA API 
+    data_result = os.getcwd().split("\TFG")[0] + "/TFG/apis_data/trafficManhattan_apiHistorical.csv"
+
+    results_DI = pd.read_csv(file_to_open)
+    results_AH = pd.read_csv(data_result)
+    results_AH = pd.concat([results_AH,results_DI])
+
+    
+    results_AH.to_csv(data_result, index=False)
+
+    
+
+    return 0
 
 def columnasAcotadas():
 
     file_to_open =  os.getcwd().split("\TFG")[0] + "/TFG/apis_data/trafficData_dataIngestion.csv"
-    data_result = os.getcwd().split("\TFG")[0] + "/TFG/apis_data/trafficManhattan.csv"
+    data_result = os.getcwd().split("\TFG")[0] + "/TFG/apis_data/trafficManhattan_dataIngestion.csv"
 
 
     with open(file_to_open) as csv_file:
@@ -90,7 +111,8 @@ def columnasAcotadas():
                 
             print(f'Processed {line_count} lines.')
     
-lastRegister = dataIngestion(100000, "2021-03-13T00:00:00.000")
-print(lastRegister)
+#lastRegister = dataIngestion(100000, "2021-03-13T00:00:00.000")
+#print(lastRegister)
 #dataIngestion(1000, "2021-03-12T00:00:00.000")
 #columnasAcotadas()
+historicalTrafficApi()
