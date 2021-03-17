@@ -6,7 +6,7 @@ from pathlib import Path
 import json
 from urllib.request import urlopen
 import os
-
+from prueba import prueba
 
 def acotarDatosNY(): 
 
@@ -263,7 +263,7 @@ def listaCallesDistintas():
     
 #columnasAcotadas()
 
-unirContaminacion()
+#unirContaminacion()
 
 #probandoAPI()
 
@@ -272,3 +272,5 @@ unirContaminacion()
 #comprobarRelleno("","unidos1.csv")
 
 #listaCallesDistintas()
+
+prueba()
