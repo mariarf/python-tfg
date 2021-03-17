@@ -33,10 +33,11 @@ def dataIngestion(dataLimit, date):
     results_df = pd.DataFrame.from_records(results)
     print(results_df.head())
 
+    #se guarda el valor de la fecha del ultimo registro
     lastRegister = results_df.loc[results_df.index[-1], "data_as_of"]
     
 
-    #separando datos de fecha en fecha y hora
+    #tipografia de los datos, separando datos de fecha en fecha y hora
     results_df["time"] = results_df["data_as_of"].str.split("T").str.get(1) 
     results_df["date"] = results_df["data_as_of"].str.split("T").str.get(0) 
     results_df["date"] = results_df["date"].str.replace("-", "/")
@@ -53,12 +54,16 @@ def dataIngestion(dataLimit, date):
     filename = current_dir + "/TFG/apis_data/trafficData_dataIngestion.csv"
 
     traffic.to_csv(filename, index=False)
-    columnasAcotadas()
 
+    #llamas metodo para darle formato al contenido
+    columnasAcotadas()
+    print("puede serrr ---------------------------------------------------------------------------------------")
 
     return lastRegister
+
     
 def historicalTrafficApi():
+    print("puede serrr ---------------------------------------------------------------------------------------2222")
     #RESULTADO DE COLUMNASACOTADAS
     file_to_open = os.getcwd().split("\TFG")[0] + "/TFG/apis_data/trafficManhattan_dataIngestion.csv"
     #EL HISTORICO DE DATOS DE LA API 
@@ -68,7 +73,7 @@ def historicalTrafficApi():
     results_AH = pd.read_csv(data_result)
     results_AH = pd.concat([results_AH,results_DI])
 
-    
+    print(results_AH)
     results_AH.to_csv(data_result, index=False)
 
     
@@ -111,8 +116,8 @@ def columnasAcotadas():
                 
             print(f'Processed {line_count} lines.')
     
-#lastRegister = dataIngestion(100000, "2021-03-13T00:00:00.000")
+lastRegister = dataIngestion(10, "2021-03-13T00:00:00.000")
 #print(lastRegister)
 #dataIngestion(1000, "2021-03-12T00:00:00.000")
 #columnasAcotadas()
-historicalTrafficApi()
+#historicalTrafficApi()

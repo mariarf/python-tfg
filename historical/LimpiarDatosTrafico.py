@@ -14,7 +14,7 @@ def acotarDatosNY():
 
  
     data_folder = Path(os.getcwd().split("\TFG")[0] + "/TFG/originals")
-    file_to_open = data_folder / "DOT_Traffic_Speeds_NBE.csv"
+    file_to_open = data_folder + "/DOT_Traffic_Speeds_NBE.csv"
     #file_to_open = data_folder / "condicionesClimaticas.csv"
 
     data_result = os.getcwd().split("\TFG")[0] + "/TFG/historical_data/salidaManhattan.csv"
@@ -162,7 +162,7 @@ def arbolUnionContaminacion():
     #LOGARÍTMICO MUCHÍSIMO MENOR AL TARDADO POR EL OTRO MÉTODO - ADEMÁS PODRÍA SERVIR COMO BASE PARA HACER EL MÉTODO DE UNIÓN DEL .CSV AL FICHERO DE DATOS DEL CLIMA. 
     data_folder = Path(os.getcwd().split("\TFG")[0] + "/TFG/originals")
     nombrearchivo = "calidadAire.csv"
-    fileContaminacion = data_folder / "calidadAire.csv"
+    fileContaminacion = data_folder + "/calidadAire.csv"
     line_count=0
     
     numLineas = numeroLineasArchivo(data_folder, nombrearchivo)
