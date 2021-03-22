@@ -1,4 +1,3 @@
-from apis.auxMethods import timeFormat
 import pandas as pd
 import json, os, urllib3, certifi, csv
 from auxMethods import *
@@ -19,7 +18,6 @@ def airQualityDataIngestion():
 
     # decode json data into a dict object
     data = json.loads(request.data.decode('utf-8'))
-    data
 
     # in this dataset, the data to extract is under 'data'
     results_df = pd.json_normalize(data, 'data')

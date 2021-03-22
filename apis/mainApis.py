@@ -1,5 +1,3 @@
-#from trafficApi import dataIngestion
-#from airQualityApi import *
 from trafficApi import *
 from airQualityApi import *
 import os
