@@ -1,7 +1,7 @@
 #from trafficApi import dataIngestion
 #from airQualityApi import *
-import trafficApi
-import airQualityApi
+from trafficApi import *
+from airQualityApi import *
 import os
 import pandas as pd
 import numpy as np
@@ -25,7 +25,7 @@ results_df = pd.read_csv(file_to_open)
 lastTraffic = results_df.loc[results_df.index[-1], "trafficTime"]
 
 #ejecutas dato y guardas nueva fecha
-newLastRegister = dataIngestion(5, lastTraffic)
+newLastRegister = trafficDataIngestion(5, lastTraffic)
 
 #guardas valores nuevos
 results_df =results_df.append({'trafficTime': newLastRegister, 'airQualityTime' : 'pepe', 'weatherTime' : 'yano'}, ignore_index=True)
