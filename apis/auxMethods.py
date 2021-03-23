@@ -21,6 +21,8 @@ def weekDay(year,month,day):
     week_num=datetime.date(year, month, day).weekday()
     return(week_days[week_num])
 
+
+
 def timeFormat(time):
     #format 00:00:00 to 00:00:00 PM
     hour = int(time.split(":")[0])
@@ -56,3 +58,11 @@ def timeFormat(time):
     
     time = str(hour) + ":" + minuts + ":" + seconds + var
     return time
+
+
+def dateOrderSeries(date):
+    #mm/dd/yyyy to yyyy/mm/dd for Series
+    split_Date = date.str.split("/")
+    date = split_Date.str.get(2) + "/" + split_Date.str.get(0) + "/" + split_Date.str.get(1)
+    return date
+

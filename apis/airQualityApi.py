@@ -36,8 +36,8 @@ def airQualityDataIngestion():
 
     #data saving as csv
     current_dir = os.getcwd().split("\TFG")[0] 
-    filename = current_dir + "/TFG/apis_data/airQualityData_dataIngestion.csv"
-    airQuality_df.to_csv(filename, index=False)
+    file_name = current_dir + "/TFG/apis_data/airQualityData_dataIngestion.csv"
+    airQuality_df.to_csv(file_name, index=False)
 
 
 def airQualityFormat():
@@ -53,6 +53,7 @@ def airQualityFormat():
             data = ["date", "time", "aqi", "color", "category", "dominant_pollutant"]
             for row in csv_reader: 
                 if line_count>=1: 
+                    data[0]=row[0] 
                     data[1]=timeFormat(row[1])
                     data[2:6]=row[2:6]   
     
