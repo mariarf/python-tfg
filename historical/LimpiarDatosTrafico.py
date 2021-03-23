@@ -6,7 +6,7 @@ from pathlib import Path
 import json
 from urllib.request import urlopen
 import os
-from prueba import prueba
+
 
 def acotarDatosNY(): 
 
