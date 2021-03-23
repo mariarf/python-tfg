@@ -3,10 +3,10 @@ import os, csv, requests, io
 
 
 ##Metodo que se conecta con la api y guarda datos en un rango de fecha --------------------------------------------
-def weatherDataIngestion():
+def weatherDataIngestion(start_datetime, end_datetime):
     #parametros-------------------------------------------------------------
-    start_datetime ="2021-03-20T15:00:00"
-    end_datetime ="2021-03-20T16:00:00"
+    #start_datetime ="2021-03-21T00:00:00"
+    #end_datetime ="2021-03-21T23:59:59"
 
     # get data from the API
     url = "https://visual-crossing-weather.p.rapidapi.com/history"
@@ -25,6 +25,7 @@ def weatherDataIngestion():
 
     results_df["time"] = datetime.str.get(1) 
     results_df["date"] = datetime.str.get(0) 
+    results_
 
     results_df["date"] = dateOrderSeries(results_df["date"])
 
@@ -42,5 +43,4 @@ def dateOrderSeries(date):
     date = split_Date.str.get(2) + "-" + split_Date.str.get(0) + "-" + split_Date.str.get(1)
     return date
 
-weatherDataIngestion()
     

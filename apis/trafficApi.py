@@ -27,7 +27,6 @@ def trafficDataIngestion(dataLimit, date):
     results_df["time"] = results_df["time"].str.replace(".000", "")
     results_df["date"] = results_df["data_as_of"].str.split("T").str.get(0) 
     
-    results_df["weekday"] = results_df["date"]
     weekDay(results_df["weekday"])
     
     #filtrando datos ---------------------------------------------------------------------------
@@ -54,5 +53,5 @@ def weekDay(date):
         
     return date
     
-lastRegister = trafficDataIngestion(1000000, "2021-03-22T00:00:00.000")
+#lastRegister = trafficDataIngestion(7103, "2021-03-21T00:00:00.000")
 
