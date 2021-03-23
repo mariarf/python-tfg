@@ -1,6 +1,5 @@
 import pandas as pd
 import json, os, urllib3, certifi, csv
-from auxMethods import *
 
 ##Metodo que se conecta con la api y guarda datos en un rango de fecha --------------------------------------------
 def airQualityDataIngestion():
@@ -27,8 +26,7 @@ def airQualityDataIngestion():
     results_df["time"] = datetime.str.get(1) 
     results_df["time"] = results_df["time"].str.replace("Z", " ")
     results_df["date"] = datetime.str.get(0) 
-    results_df["date"] = results_df["date"].str.replace("-", "/")
-
+    
 
     #data filtering
     airQuality_df = results_df[["date", "time", "indexes.baqi.aqi", "indexes.baqi.color", "indexes.baqi.category", "indexes.baqi.dominant_pollutant"]]
@@ -36,33 +34,9 @@ def airQualityDataIngestion():
 
     #data saving as csv
     current_dir = os.getcwd().split("\TFG")[0] 
-    file_name = current_dir + "/TFG/apis_data/airQualityData_dataIngestion.csv"
+    file_name = current_dir + "/TFG/apis_data/airQuality_dataIngestion.csv"
     airQuality_df.to_csv(file_name, index=False)
 
-
-def airQualityFormat():
-    file_to_open =  os.getcwd().split("\TFG")[0] + "/TFG/apis_data/airQualityData_dataIngestion.csv"
-    data_result = os.getcwd().split("\TFG")[0] + "/TFG/apis_data/airQualityFormat_dataIngestion.csv"
-
-    with open(file_to_open) as csv_file:
-        with open(data_result, mode='w', newline='') as out:
-            csv_reader = csv.reader(csv_file, delimiter=',')
-            fill_output = csv.writer(out, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            line_count = 0
-            
-            data = ["date", "time", "aqi", "color", "category", "dominant_pollutant"]
-            for row in csv_reader: 
-                if line_count>=1: 
-                    data[0]=row[0] 
-                    data[1]=timeFormat(row[1])
-                    data[2:6]=row[2:6]   
-    
-                fill_output.writerow(data)
-    
-                line_count += 1
-                
-            print(f'Processed {line_count} lines.')
-
-
+ 
 airQualityDataIngestion()
-airQualityFormat()
+
