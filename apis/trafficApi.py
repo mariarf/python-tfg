@@ -3,29 +3,25 @@
 # make sure to install these packages before running:
 # pip install pandas
 # pip install sodapy
-#import metodosFormatos
+
 from numpy import empty
-from metodosFormatos import *
 import pandas as pd
-import csv
 from sodapy import Socrata
-import os
-import requests
-import json
+import os, csv
+from auxMethods import *
 
 
-def dataIngestion(dataLimit, date):
+def trafficDataIngestion(dataLimit, date):
 
-    date = "data_as_of >" + "'" + date + "'" 
+    date = "data_as_of >" + "'" + "2021-03-21T00:00:00.000" + "'" 
 
     # Unauthenticated client only works with public data sets. Note 'None'
     # in place of application token, and no username or password:
     client = Socrata("data.cityofnewyork.us", None)
-    #client.timeout = 50
+
 
     # First dataLimit results, returned as JSON from API / converted to Python list of
     # dictionaries by sodapy.
-    
     results = client.get("i4gi-tjb9", limit=dataLimit, borough = "Manhattan", where = date)
     
 
@@ -33,82 +29,59 @@ def dataIngestion(dataLimit, date):
     results_df = pd.DataFrame.from_records(results)
     print(results_df.head())
 
-    #se guarda el valor de la fecha del ultimo registro
-    lastRegister = results_df.loc[results_df.index[-1], "data_as_of"]
+    #se guarda el valor de la fecha del ultimo registro -------------------------------------------------------------------------
+    last_register = results_df.loc[results_df.index[-1], "data_as_of"]
     
 
-    #tipografia de los datos, separando datos de fecha en fecha y hora
+    #tipografia de los datos, separando datos de fecha en fecha y hora     ---------------------------------------
     results_df["time"] = results_df["data_as_of"].str.split("T").str.get(1) 
+    results_df["time"] = results_df["time"].str.replace(".000", " ")
     results_df["date"] = results_df["data_as_of"].str.split("T").str.get(0) 
     results_df["date"] = results_df["date"].str.replace("-", "/")
 
-    #muestra la cabecera de la tabla y el tipo de dato
-    print(results_df.dtypes)
-
-    #filtrando datos
+    #filtrando datos ---------------------------------------------------------------------------
     traffic = results_df[["id", "speed", "travel_time", "status", "date", "time","borough", "link_name"]]
     
     
-    #guardando 
+    #guardando -----------------------------------------------------------------------------------------
     current_dir = os.getcwd().split("\TFG")[0] 
     filename = current_dir + "/TFG/apis_data/trafficData_dataIngestion.csv"
 
     traffic.to_csv(filename, index=False)
 
-    #llamas metodo para darle formato al contenido
-    columnasAcotadas()
-    print("puede serrr ---------------------------------------------------------------------------------------")
+    #llamas metodo para darle formato al contenido --------------------------------------------------------------
+    trafficFormat()
 
-    return lastRegister
 
-    
-def historicalTrafficApi():
-    print("puede serrr ---------------------------------------------------------------------------------------2222")
-    #RESULTADO DE COLUMNASACOTADAS
-    file_to_open = os.getcwd().split("\TFG")[0] + "/TFG/apis_data/trafficManhattan_dataIngestion.csv"
-    #EL HISTORICO DE DATOS DE LA API 
-    data_result = os.getcwd().split("\TFG")[0] + "/TFG/apis_data/trafficManhattan_apiHistorical.csv"
+    return last_register
 
-    results_DI = pd.read_csv(file_to_open)
-    results_AH = pd.read_csv(data_result)
-    results_AH = pd.concat([results_AH,results_DI])
-
-    print(results_AH)
-    results_AH.to_csv(data_result, index=False)
-
-    
-
-    return 0
-
-def columnasAcotadas():
+def trafficFormat():
 
     file_to_open =  os.getcwd().split("\TFG")[0] + "/TFG/apis_data/trafficData_dataIngestion.csv"
-    data_result = os.getcwd().split("\TFG")[0] + "/TFG/apis_data/trafficManhattan_dataIngestion.csv"
-
+    data_result = os.getcwd().split("\TFG")[0] + "/TFG/apis_data/trafficDataFormat_dataIngestion.csv"
 
     with open(file_to_open) as csv_file:
-        
-        with open(data_result, mode='w', newline='') as salida:
+        with open(data_result, mode='w', newline='') as out:
             csv_reader = csv.reader(csv_file, delimiter=',')
-            rellenarSalida = csv.writer(salida, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            fill_output = csv.writer(out, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             line_count = 0
             
-            columnasAcotadas = ["id", "speed", "travel_time", "status", "date", "time", "weekday", "borough", "link_name"]
-            #rellenarSalida.writerow(columnas_acotadas)
+            data = ["id", "speed", "travel_time", "status", "date", "time", "weekday", "borough", "link_name"]
+
             for row in csv_reader: 
                 if line_count>=1: 
                     print(row[4])
-                    fecha_split= row[4].split("/")   
-                    fecha_año=int(fecha_split[0])
-                    fecha_mes=int(fecha_split[1])
-                    fecha_dia=int(fecha_split[2])
-                    columnasAcotadas[6]=diaSemana(fecha_año,fecha_mes,fecha_dia)
-                    columnasAcotadas[5]=horaFormato(row[5])
+                    date_split= row[4].split("/")   
+                    date_year=int(date_split[0])
+                    date_month=int(date_split[1])
+                    date_day=int(date_split[2])
+                    data[6]= weekDay(date_year,date_month,date_day)
+                    data[5]= timeFormat(row[5])
                 
-                columnasAcotadas[0:5]=row[0:5]   
-                columnasAcotadas[7:9]=row[7:9]   
+                data[0:5]=row[0:5]   
+                data[7:9]=row[7:9]   
             
-                rellenarSalida.writerow(columnasAcotadas)
+                fill_output.writerow(data)
     
                 if line_count%100000==0:
                     print(line_count)
@@ -116,7 +89,7 @@ def columnasAcotadas():
                 
             print(f'Processed {line_count} lines.')
     
-lastRegister = dataIngestion(10, "2021-03-13T00:00:00.000")
+lastRegister = trafficDataIngestion(1000000, "2021-03-13T00:00:00.000")
 #print(lastRegister)
 #dataIngestion(1000, "2021-03-12T00:00:00.000")
 #columnasAcotadas()
