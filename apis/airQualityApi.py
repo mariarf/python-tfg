@@ -27,7 +27,6 @@ def airQualityDataIngestion():
     results_df["time"] = results_df["time"].str.replace("Z", " ")
     results_df["date"] = datetime.str.get(0) 
     
-
     #data filtering
     airQuality_df = results_df[["date", "time", "indexes.baqi.aqi", "indexes.baqi.color", "indexes.baqi.category", "indexes.baqi.dominant_pollutant"]]
     airQuality_df = airQuality_df.rename(columns={"indexes.baqi.aqi": "aqi", "indexes.baqi.color": "color", "indexes.baqi.category": "category", "indexes.baqi.dominant_pollutant": "dominant_pollutant" })
@@ -37,6 +36,5 @@ def airQualityDataIngestion():
     file_name = current_dir + "/TFG/apis_data/airQuality_dataIngestion.csv"
     airQuality_df.to_csv(file_name, index=False)
 
- 
 airQualityDataIngestion()
 

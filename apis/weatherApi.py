@@ -20,7 +20,6 @@ def weatherDataIngestion():
 
     results_df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
 
-  
     #tipografia de los datos, separando datos de fecha en fecha y hora -----------------------------------------------
     datetime = results_df["Date time"].str.split(" ")
 
@@ -29,10 +28,8 @@ def weatherDataIngestion():
 
     results_df["date"] = dateOrderSeries(results_df["date"])
 
-
-    
     weather_df = results_df[["date","time","Temperature","Dew Point","Relative Humidity","Wind Speed","Wind Gust","Wind Direction","Precipitation","Snow Depth","Visibility","Cloud Cover","Sea Level Pressure","Conditions"]]
-    print(weather_df.head())
+
     #guardando datos obtenidos en csv 
     current_dir = os.getcwd().split("\TFG")[0] 
     file_name = current_dir + "/TFG/apis_data/weather_dataIngestion.csv"
@@ -45,6 +42,5 @@ def dateOrderSeries(date):
     date = split_Date.str.get(2) + "-" + split_Date.str.get(0) + "-" + split_Date.str.get(1)
     return date
 
-   
 weatherDataIngestion()
     
