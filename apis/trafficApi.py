@@ -2,6 +2,7 @@
 # pip install pandas
 # pip install sodapy
 
+from auxMethods import apiHistoricalData
 from numpy import empty
 import pandas as pd
 from sodapy import Socrata
@@ -26,17 +27,19 @@ def trafficDataIngestion(dataLimit, date):
     results_df["time"] = results_df["data_as_of"].str.split("T").str.get(1) 
     results_df["time"] = results_df["time"].str.replace(".000", "")
     results_df["date"] = results_df["data_as_of"].str.split("T").str.get(0) 
-    
+    results_df["date_hour"] = results_df["time"].str.split(":").str.get(0) + ":00:00"
+    results_df["weekday"] = results_df["date"]
     weekDay(results_df["weekday"])
     
     #filtrando datos ---------------------------------------------------------------------------
-    traffic = results_df[["id", "speed", "travel_time", "status", "date", "time","borough", "link_name", "weekday"]]
+    traffic = results_df[["id", "speed", "travel_time", "date", "time","borough", "link_name", "weekday", "date_hour"]]
     
     #guardando -----------------------------------------------------------------------------------------
     current_dir = os.getcwd().split("\TFG")[0] 
     filename = current_dir + "/TFG/apis_data/traffic_dataIngestion.csv"
 
     traffic.to_csv(filename, index=False)
+    apiHistoricalData("traffic_dataIngestion.csv", "traffic_historical.csv")
 
 ## Metodo que actualiza dataframe que se le pasa  
 def weekDay(date):
@@ -53,5 +56,6 @@ def weekDay(date):
         
     return date
     
-#lastRegister = trafficDataIngestion(7103, "2021-03-21T00:00:00.000")
+#lastRegister = trafficDataIngestion(10, "2021-03-21T01:00:00.000")
+#lastRegister = trafficDataIngestion(10, "2021-03-22T02:00:00.000")
 

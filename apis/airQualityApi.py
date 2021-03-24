@@ -37,5 +37,5 @@ def airQualityDataIngestion(start_datetime, end_datetime):
 
     apiHistoricalData("airQuality_dataIngestion.csv", "airQuality_historical.csv" )
 
-airQualityDataIngestion("2021-03-21T00:00:00", "2021-03-21T08:00:00")
-airQualityDataIngestion("2021-03-21T08:30:00", "2021-03-21T23:59:59")
+#airQualityDataIngestion("2021-03-21T00:00:00", "2021-03-21T08:00:00")
+#airQualityDataIngestion("2021-03-21T08:30:00", "2021-03-21T23:59:59")

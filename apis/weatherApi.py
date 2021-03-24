@@ -1,12 +1,12 @@
 import pandas as pd
 import os, csv, requests, io
+from auxMethods import *
 
 
 ##Metodo que se conecta con la api y guarda datos en un rango de fecha --------------------------------------------
 def weatherDataIngestion(start_datetime, end_datetime):
-    #parametros-------------------------------------------------------------
-    #start_datetime ="2021-03-21T00:00:00"
-    #end_datetime ="2021-03-21T23:59:59"
+
+    start_datetime= start_datetime[0:-5] + "00:00"
 
     # get data from the API
     url = "https://visual-crossing-weather.p.rapidapi.com/history"
@@ -19,13 +19,14 @@ def weatherDataIngestion(start_datetime, end_datetime):
     response = requests.request("GET",url, headers=headers, params = querystring)  
 
     results_df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
+    results_df = results_df.drop(index=0)
 
     #tipografia de los datos, separando datos de fecha en fecha y hora -----------------------------------------------
     datetime = results_df["Date time"].str.split(" ")
 
     results_df["time"] = datetime.str.get(1) 
     results_df["date"] = datetime.str.get(0) 
-    results_
+ 
 
     results_df["date"] = dateOrderSeries(results_df["date"])
 
@@ -35,6 +36,7 @@ def weatherDataIngestion(start_datetime, end_datetime):
     current_dir = os.getcwd().split("\TFG")[0] 
     file_name = current_dir + "/TFG/apis_data/weather_dataIngestion.csv"
     weather_df.to_csv(file_name, index=False)
+    apiHistoricalData("weather_dataIngestion.csv", "weather_historical.csv" )
 
 
 def dateOrderSeries(date):
@@ -43,4 +45,5 @@ def dateOrderSeries(date):
     date = split_Date.str.get(2) + "-" + split_Date.str.get(0) + "-" + split_Date.str.get(1)
     return date
 
-    
+#weatherDataIngestion("2021-03-20T23:30:00", "2021-03-21T08:00:00")
+#weatherDataIngestion("2021-03-21T08:30:00", "2021-03-21T23:59:59")
