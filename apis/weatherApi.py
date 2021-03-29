@@ -19,7 +19,6 @@ def weatherDataIngestion(start_datetime, end_datetime):
     response = requests.request("GET",url, headers=headers, params = querystring)  
 
     results_df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
-    results_df = results_df.drop(index=0)
 
     #tipografia de los datos, separando datos de fecha en fecha y hora -----------------------------------------------
     datetime = results_df["Date time"].str.split(" ")

@@ -18,7 +18,7 @@ def airQualityDataIngestion(start_datetime, end_datetime):
 
     # in this dataset, the data to extract is under 'data'
     results_df = pd.json_normalize(data, 'data')
-    results_df = results_df.drop(index=0)
+    
 
     #tipografia de los datos, separando datos de fecha en fecha y hora -----------------------------------------------
     datetime = results_df["datetime"].str.split("T")

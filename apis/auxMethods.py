@@ -9,8 +9,14 @@ def apiHistoricalData(new, historical):
     #EL HISTORICO DE DATOS DE LA API 
     data_result = os.getcwd().split("\TFG")[0] + f"/TFG/apis_data/historical/{historical}"
 
+    
+
     results_DI = pd.read_csv(file_to_open)
     results_AH = pd.read_csv(data_result)
+    if results_DI.loc[results_DI.index[-1], "time"] == results_AH.loc[results_AH.index[0], "time"]:
+        if results_DI.loc[results_DI.index[-1], "date"] == results_AH.loc[results_AH.index[0], "date"]:
+            results_AH = results_AH.drop(index=0)
+
     results_AH = pd.concat([results_AH,results_DI])
 
     print(results_AH)
