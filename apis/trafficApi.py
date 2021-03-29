@@ -45,6 +45,6 @@ def trafficDataIngestion(dataLimit, date):
 
 
     
-lastRegister = trafficDataIngestion(10, "2021-03-21T01:00:00.000")
+#lastRegister = trafficDataIngestion(10, "2021-03-21T01:00:00.000")
 #lastRegister = trafficDataIngestion(10, "2021-03-22T02:00:00.000")
 

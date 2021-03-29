@@ -44,5 +44,5 @@ def dateOrderSeries(date):
     date = split_Date.str.get(2) + "-" + split_Date.str.get(0) + "-" + split_Date.str.get(1)
     return date
 
-#weatherDataIngestion("2021-03-20T23:30:00", "2021-03-21T08:00:00")
+weatherDataIngestion("2021-01-25T01:00:00", "2021-01-28T00:00:00")
 #weatherDataIngestion("2021-03-21T08:30:00", "2021-03-21T23:59:59")

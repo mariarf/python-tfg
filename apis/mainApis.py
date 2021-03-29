@@ -13,7 +13,8 @@ last_traffic_date = traffic_df.loc[traffic_df.index[-1], "date"]
 last_traffic_time = traffic_df.loc[traffic_df.index[-1], "time"]
 
 start_datetime = last_traffic_date + "T" + last_traffic_time
-trafficDataIngestion(100000, start_datetime)
+start_datetime = "2021-03-01T00:00:00"
+trafficDataIngestion(5000, start_datetime)
 
 traffic_df = pd.read_csv(file_to_open)
 last_traffic_date = traffic_df.loc[traffic_df.index[-1], "date"]

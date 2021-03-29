@@ -35,7 +35,7 @@ def airQualityDataIngestion(start_datetime, end_datetime):
     file_name = current_dir + "/TFG/apis_data/airQuality_dataIngestion.csv"
     airQuality_df.to_csv(file_name, index=False)
 
-    apiHistoricalData("airQuality_dataIngestion.csv", "airQuality_historical.csv" )
+    apiHistoricalData("airQuality_dataIngestion.csv", "airQuality_historical.csv")
 
-#airQualityDataIngestion("2021-03-21T00:00:00", "2021-03-21T08:00:00")
+#airQualityDataIngestion("2021-03-26T01:00:00", "2021-03-28T00:00:00")
 #airQualityDataIngestion("2021-03-21T08:30:00", "2021-03-21T23:59:59")
