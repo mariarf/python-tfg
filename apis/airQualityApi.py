@@ -1,13 +1,28 @@
 from pandas.core import groupby
 from auxMethods import apiHistoricalData
 import pandas as pd
-import json, os, urllib3, certifi, csv, requests, io, calendar, datetime
+
+from datetime import datetime as dt
+from dateutil import tz
+import json, os, urllib3, certifi, csv, requests, io, calendar, datetime, pytz
+
+def convertTimeStr(time, from_time, to_time):
+    from_time = pytz.timezone(from_time)
+    to_time = pytz.timezone(to_time)
+   
+
+    res = datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S")
+    res = from_time.localize(res)
+    res = res.astimezone(to_time)
+    res = res.strftime("%Y-%m-%dT%H:%M:%S")
+    return res
 
 ##Metodo que se conecta con la api y guarda datos en un rango de fecha excluye la primera linea --------------------------------------------
 def airQualityDataIngestion(start_datetime, end_datetime):
-
-    start_datetime = start_datetime[0:13]
-    end_datetime = end_datetime[0:13]
+    
+    start_datetime = convertTimeStr(start_datetime, 'America/New_York', 'UTC')[0:13]
+    print(start_datetime)
+    end_datetime = convertTimeStr(end_datetime, 'America/New_York', 'UTC')[0:13]
     
     # handle certificate verification and SSL warnings
     # https://urllib3.readthedocs.io/en/latest/user-guide.html#ssl
@@ -22,9 +37,12 @@ def airQualityDataIngestion(start_datetime, end_datetime):
     results_df = pd.DataFrame(data)
     
     results_df = results_df.rename(columns={"UTC": "datetime"}) 
-    results_df = results_df[["datetime", "AQI", "Parameter", "Unit", "Value", "Category"]]
     results_df["datetime"] = pd.to_datetime(results_df["datetime"])
+    results_df = results_df[["datetime", "AQI", "Parameter", "Unit", "Value", "Category"]]
     
+    results_df["datetime"] = results_df["datetime"].dt.tz_localize('UTC').dt.tz_convert('America/New_York').dt.strftime("%Y-%m-%dT%H:%M:%S")
+    print(results_df.head())
+
     pm25_df = results_df.drop(results_df[results_df['Parameter']=="OZONE"].index)
     ozone_df = results_df.drop(results_df[results_df['Parameter']=="PM2.5"].index)
 
@@ -39,5 +57,6 @@ def airQualityDataIngestion(start_datetime, end_datetime):
     airQuality_df.to_csv(file_name, index=False)
   
 
-#airQualityDataIngestion("2021-03-20T00:00:00", "2021-03-31T23:00:00")
+airQualityDataIngestion("2021-03-22T00:00:00", "2021-03-31T23:00:00")
 #airQualityDataIngestion("2021-03-21T08:30:00", "2021-03-21T23:59:59")
+
