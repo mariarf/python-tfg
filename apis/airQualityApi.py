@@ -1,10 +1,5 @@
-from pandas.core import groupby
-from auxMethods import apiHistoricalData
 import pandas as pd
-
-from datetime import datetime as dt
-from dateutil import tz
-import json, os, urllib3, certifi, csv, requests, io, calendar, datetime, pytz
+import json, os, urllib3, certifi, datetime, pytz
 
 def convertTimeStr(time, from_time, to_time):
     from_time = pytz.timezone(from_time)
@@ -20,8 +15,12 @@ def convertTimeStr(time, from_time, to_time):
 ##Metodo que se conecta con la api y guarda datos en un rango de fecha excluye la primera linea --------------------------------------------
 def airQualityDataIngestion(start_datetime, end_datetime):
     
+    #data saving
+    current_dir = os.getcwd().split("\TFG")[0] 
+    file_name = current_dir + f"/TFG/pruebas_maria/airQuality_dataIngestion_{start_datetime[0:13]}_to_{end_datetime[0:13]}.csv"
+
+    #pasando hora de NY a UTC para hacer la solicitud a la hora deseada
     start_datetime = convertTimeStr(start_datetime, 'America/New_York', 'UTC')[0:13]
-    print(start_datetime)
     end_datetime = convertTimeStr(end_datetime, 'America/New_York', 'UTC')[0:13]
     
     # handle certificate verification and SSL warnings
@@ -41,7 +40,6 @@ def airQualityDataIngestion(start_datetime, end_datetime):
     results_df = results_df[["datetime", "AQI", "Parameter", "Unit", "Value", "Category"]]
     
     results_df["datetime"] = results_df["datetime"].dt.tz_localize('UTC').dt.tz_convert('America/New_York').dt.strftime("%Y-%m-%dT%H:%M:%S")
-    print(results_df.head())
 
     pm25_df = results_df.drop(results_df[results_df['Parameter']=="OZONE"].index)
     ozone_df = results_df.drop(results_df[results_df['Parameter']=="PM2.5"].index)
@@ -52,11 +50,9 @@ def airQualityDataIngestion(start_datetime, end_datetime):
     airQuality_df = airQuality_df.sort_values("datetime")
 
     #data saving as csv
-    current_dir = os.getcwd().split("\TFG")[0] 
-    file_name = current_dir + f"/TFG/pruebas_maria/airQuality_dataIngestion_{start_datetime}_{end_datetime}.csv"
     airQuality_df.to_csv(file_name, index=False)
+
+    print(f"AirQualityApi: {file_name}")
   
 
-airQualityDataIngestion("2021-03-22T00:00:00", "2021-03-31T23:00:00")
-#airQualityDataIngestion("2021-03-21T08:30:00", "2021-03-21T23:59:59")
 

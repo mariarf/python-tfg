@@ -2,14 +2,13 @@
 # pip install pandas
 # pip install sodapy
 
-from auxMethods import apiHistoricalData
-from numpy import empty
+from numpy import select
 import pandas as pd
 from sodapy import Socrata
-import os, datetime
+import os
 
 #Date tiene que ser de formato: yyyy-mm-ddThh:mm:ss
-def trafficDataIngestion(dataLimit, start_datetime, end_datetime):
+def trafficDataIngestion(start_datetime, end_datetime):
 
     # Unauthenticated client only works with public data sets. Note 'None'
     # in place of application token, and no username or password:
@@ -20,9 +19,10 @@ def trafficDataIngestion(dataLimit, start_datetime, end_datetime):
     #date = "data_as_of >" + "'" + date + "'"  #para a partir de una fecha
     date = f"data_as_of between '{start_datetime}' and '{end_datetime}'"
     
+    columns = "data_as_of, id, speed, travel_time, link_name"
+
     #results = client.get("i4gi-tjb9", limit=dataLimit, borough = "Manhattan", where = date) #para a partir de una fecha
-    results = client.get("i4gi-tjb9", borough = "Manhattan", where = date)
-    
+    results = client.get("i4gi-tjb9", borough = "Manhattan", where = date, select = columns)
     
     # Convert to pandas DataFrame
     results_df = pd.DataFrame.from_records(results)
@@ -41,20 +41,15 @@ def trafficDataIngestion(dataLimit, start_datetime, end_datetime):
     results_df["datetime"] = pd.to_datetime(results_df["datetime"])
     results_df["datetime_traffic"] = pd.to_datetime(results_df["datetime_traffic"])
 
-
-    #filtrando datos ---------------------------------------------------------------------------
-    traffic = results_df[["datetime", "datetime_traffic", "weekday", "id", "speed", "travel_time", "link_name"]]
-    print(traffic.head(15))
+    results_df = results_df[["datetime", "datetime_traffic", "weekday", "id", "speed", "travel_time", "link_name"]]
    
     #guardando -----------------------------------------------------------------------------------------
     current_dir = os.getcwd().split("\TFG")[0] 
-    filename = current_dir + "/TFG/apis_data/traffic_dataIngestion.csv"
+    file_name = current_dir + f"/TFG/apis_data/traffic_historical/traffic_dataIngestion_{start_datetime[0:13]}_to_{end_datetime[0:13]}.csv"
 
-    traffic.to_csv(filename, index=False)
-    
+    results_df.to_csv(file_name, index=False)
+    print(f"TrafficApi: {file_name}")
 
 
-    
-trafficDataIngestion(1000000, "2021-03-01T15:00:00.000", "2021-03-01T23:00:00.000")
-#trafficDataIngestion(10, "2021-03-22T02:00:00.000")
+
 
