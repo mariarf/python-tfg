@@ -1,4 +1,3 @@
-from datetime import date, datetime
 import pandas as pd
 import os, requests, io
 
@@ -31,3 +30,5 @@ def weatherDataIngestion(start_datetime, end_datetime):
     results_df.to_csv(file_name, index=False)
 
     print(f"WeatherApi: {file_name}")
+
+#weatherDataIngestion("2021-04-04T00:00:00", "2021-04-04T18:01:00")

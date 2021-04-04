@@ -17,7 +17,7 @@ def airQualityDataIngestion(start_datetime, end_datetime):
     
     #data saving
     current_dir = os.getcwd().split("\TFG")[0] 
-    file_name = current_dir + f"/TFG/pruebas_maria/airQuality_dataIngestion_{start_datetime[0:13]}_to_{end_datetime[0:13]}.csv"
+    file_name = current_dir + f"/TFG/apis_data/airQuality_historical/airQuality_dataIngestion_{start_datetime[0:13]}_to_{end_datetime[0:13]}.csv"
 
     #pasando hora de NY a UTC para hacer la solicitud a la hora deseada
     start_datetime = convertTimeStr(start_datetime, 'America/New_York', 'UTC')[0:13]

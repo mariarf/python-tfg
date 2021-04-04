@@ -1,4 +1,4 @@
-import datetime, os, csv
+import os
 import pandas as pd
 
 ## metodo que agrega en historical el contenido de new, las cabeceras deben coincidir
@@ -20,8 +20,5 @@ def apiHistoricalData(new, historical):
     print(results_AH)
     results_AH.to_csv(data_result, index=False)
 
-def weekDay(year,month,day):
-    week_days=["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sabado", "Domingo"]
-    week_num=datetime.date(year, month, day).weekday()
-    return(week_days[week_num])
+
 
