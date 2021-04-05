@@ -84,8 +84,7 @@ def historicalValues():
     print(df["DateClimate"].head(20))
     print(df["TimeClimate"].head(20))
 
-
-    #print(df.head(20))  
+ 
     #df.to_csv(output_csv, index=False)
     #print(df_climate["gust"].describe())
     #print(df_climate["ice_accretion_1hr"].describe())
