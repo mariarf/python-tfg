@@ -12,7 +12,7 @@ from pathlib import Path
 def historicalValues():
     file_to_open =  os.getcwd().split("\TFG")[0] + "/TFG/historical_data/salidaManhattan.csv"
     file_contamination = os.getcwd().split("\TFG")[0] + "/TFG/originals/calidadAire.csv"
-    file_climate = os.getcwd().split("\TFG")[0] + "/TFG/originals/JRB.csv"
+    file_climate = os.getcwd().split("\TFG")[0] + "/TFG/originals/NYC+ROUTINE+NY.csv"
     output_csv = os.getcwd().split("\TFG")[0] + "/TFG/historical_data/finalOutput.csv"
 
     df=pd.read_csv(file_to_open, names=["ID","Speed", "TravelTime", "STATUS", "Date", "LINK_ID", "LINK_POINTS", "ENCODED_POLY_LINE", "ENCODED_POLY_LIKE_LVLS", "OWNER", "TRANSCOM_ID", "Borough", "Link_name"])
@@ -74,8 +74,19 @@ def historicalValues():
 
     df = pd.merge(df, df_climate, how="inner" , left_on=["Date","Time"], right_on=["DateClimate","TimeClimate"])
     print(df.describe())
+
+    df["Time"]=pd.to_datetime(df["Time"]).dt.strftime('%H:%M:%S')
+    df["TimeClimate"]=pd.to_datetime(df["TimeClimate"]).dt.strftime('%H:%M:%S')
+
+    print(df.head(20))
+    print(df["Date"].head(20))
+    print(df["Time"].head(20))
+    print(df["DateClimate"].head(20))
+    print(df["TimeClimate"].head(20))
+
+
     #print(df.head(20))  
-    df.to_csv(output_csv, index=False)
+    #df.to_csv(output_csv, index=False)
     #print(df_climate["gust"].describe())
     #print(df_climate["ice_accretion_1hr"].describe())
     """
@@ -91,7 +102,7 @@ def historicalValues():
         print(col)
     """
 historicalValues()
-    
+
 def pruebaClima():
     file_climate = os.getcwd().split("\TFG")[0] + "/TFG/originals/condicionesClimaticas.csv"
     df_climate = pd.read_csv(file_climate, names=["station","valid","tmpf","dwpf","relh","drct","sknt","p01i","alti","mslp","vsby","gust","skyc1","skyc2","skyc3","skyc4","skyl1","skyl2","skyl3","skyl4","wxcodes","ice_accretion_1hr","ice_accretion_3hr","ice_accretion_6hr","peak_wind_gust","peak_wind_drct","peak_wind_time","feel","metar"], header=None)
