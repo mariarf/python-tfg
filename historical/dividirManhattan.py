@@ -6,6 +6,7 @@ from datetime import date
 import os
 from pathlib import Path
 import matplotlib.pyplot as plt
+import math
 
 
 """
@@ -62,7 +63,7 @@ def dividirManhattan():
         #print("X: " + str(coord_x))
         #print("Y: " + str(coord_y))
 
-    print(df_unico["coordX"])
+    #print(df_unico["coordX"])
     df_unico.pop("LINK_POINTS")
     df_unico.to_csv(file_output, index=False)    
     
@@ -83,15 +84,16 @@ def mostrarPuntos():
     
     divisionX = round((df["coordX"].max() - df["coordX"].min()) /8, 2)
     divisionY = round((df["coordY"].max() - df["coordY"].min()) /5 ,2)
-
+ 
+    
     plt.scatter(df["coordX"], df["coordY"])
     plt.title("Link Points - Manhattan")
     plt.xlabel("x coordinate")
     plt.ylabel("y coordinate")
 
 
-    plt.xticks(np.arange(40.67 , 40.85 + 0.05, divisionX))
-    plt.yticks(np.arange(-74.02 , -73.9, divisionY))
+    plt.xticks(np.arange(df["coordX"].min() - 0.005 ,df["coordX"].max() , divisionX))
+    plt.yticks(np.arange(df["coordY"].min() -0.005, df["coordY"].max(), divisionY))
     plt.grid()
     plt.show()
     
@@ -107,25 +109,22 @@ def zonaManhattan():
 
     divisionX = (df["coordX"].max() - df["coordX"].min()) /8
     divisionY = (df["coordY"].max() - df["coordY"].min()) /5
+    df["zonaX"] = abs(( df["coordX"] - df["coordX"].max()) / divisionX)
+    df["zonaY"] = abs(( df["coordY"] - df["coordY"].max() ) / divisionY)
 
-    df["zonaX"] = abs(round(( df["coordX"] - df["coordX"].max() ) / divisionX))
-    df["zonaY"] = abs(round(( df["coordY"] - df["coordY"].max() ) / divisionY))
     df["zonaX"] = df["zonaX"].astype(int)
     df["zonaY"] = df["zonaY"].astype(int)
 
     df["zonaX"] = df["zonaX"].astype(str)
     df["zonaY"] = df["zonaY"].astype(str)
 
-    df["zonaX"] = df["zonaX"].astype(int)
-    df["zonaY"] = df["zonaY"].astype(int)
-
     df["zona"] = df["zonaX"] + df["zonaY"]
 
     df.to_csv(file, index=False)
 
 
-dividirManhattan() 
+#dividirManhattan() 
 
-zonaManhattan()
+#zonaManhattan()
 
 mostrarPuntos()
