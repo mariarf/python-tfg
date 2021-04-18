@@ -3,7 +3,9 @@ from airQualityApi import *
 from weatherApi import *
 import os, time, datetime
 import pandas as pd
+import pytz
 
+print(end_datetime)
 def apisRequest():
     data_folder = os.getcwd().split("\TFG")[0] + "/TFG/apis_data"
     file_to_open = data_folder + "/historical_register.csv"
@@ -12,11 +14,10 @@ def apisRequest():
     start_datetime = datetime_df.loc[datetime_df.index[-1], "datetime"]
     #start_datetime = "2021-03-27T23:59:04"
 
-    end_datetime = datetime.datetime.utcnow()
+    tz_NY = pytz.timezone('America/New_York') 
+    end_datetime = datetime.datetime.now(tz_NY)
     end_datetime = end_datetime - datetime.timedelta(hours=4)
-    end_datetime = str(end_datetime)[0:-7].replace(" ", "T")
-
-    end_datetime = convertTimeStr(end_datetime, "UTC", "America/New_York")
+    end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%S")
     
     trafficDataIngestion(1000000, start_datetime, end_datetime)
     airQualityDataIngestion(start_datetime, end_datetime)
@@ -60,6 +61,6 @@ def mergeByDatetime(datetime):
 
     print(f"Merge Traffic, AirQuality, Weather: {file_name}")
   
-apisRequest()
+#apisRequest()
 
 #mergeByDatetime("2021-02-01T00_to_2021-02-28T23")
