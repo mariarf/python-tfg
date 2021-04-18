@@ -1,40 +1,66 @@
+from numpy import NaN
 import pandas as pd
-import json, os, urllib3, certifi, datetime, pytz
+import json, os, urllib3, certifi, pytz
+from datetime import datetime as dt
+from datetime import timedelta as timedelta
+
+
 
 def convertTimeStr(time, from_time, to_time):
     from_time = pytz.timezone(from_time)
     to_time = pytz.timezone(to_time)
    
 
-    res = datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S")
+    res = dt.strptime(time,"%Y-%m-%dT%H:%M:%S")
     res = from_time.localize(res)
     res = res.astimezone(to_time)
     res = res.strftime("%Y-%m-%dT%H:%M:%S")
     return res
+#metodo que devuelve la diferencia entre la fecha local en NY y la fecha pasada por parametro
+def differenceDatetime(datetime_value):
+        tz_NY = pytz.timezone('America/New_York') 
+        current_datetime = dt.now(tz_NY)
+        current_datetime = dt.strptime(str(current_datetime)[0:-13],"%Y-%m-%d %H:%M:%S")
+        datetime_value = dt.strptime(datetime_value, "%Y-%m-%dT%H:%M:%S")
+        return current_datetime - datetime_value
 
 ##Metodo que se conecta con la api y guarda datos en un rango de fecha excluye la primera linea --------------------------------------------
-def airQualityDataIngestion(start_datetime, end_datetime, file_dir):
+def airQualityDataIngestion(start_datetime, file_dir):
     
-    #data saving
-    current_dir = os.getcwd().split("\TFG")[0] 
-    file_name = current_dir + f"/TFG/apis_data/airQuality_historical/airQuality_dataIngestion_{start_datetime[0:13]}_to_{end_datetime[0:13]}.csv"
 
     #pasando hora de NY a UTC para hacer la solicitud a la hora deseada
-    start_datetime = convertTimeStr(start_datetime, 'America/New_York', 'UTC')[0:13]
-    end_datetime = convertTimeStr(end_datetime, 'America/New_York', 'UTC')[0:13]
+    hour_datetime = convertTimeStr(start_datetime, 'America/New_York', 'UTC')[0:13]
     
     # handle certificate verification and SSL warnings
     # https://urllib3.readthedocs.io/en/latest/user-guide.html#ssl
     http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',ca_certs=certifi.where())
 
     # get data from the API
-    url = f"https://www.airnowapi.org/aq/data/?startDate={start_datetime}&endDate={end_datetime}&parameters=OZONE,PM25&BBOX=-74.020308,40.700155,-73.940657,40.827572&dataType=B&format=application/json&verbose=0&nowcastonly=0&includerawconcentrations=0&API_KEY=7FD50518-C721-4C9A-861F-883367594091"
+    url = f"https://www.airnowapi.org/aq/data/?startDate={hour_datetime}&endDate={hour_datetime}&parameters=OZONE,PM25&BBOX=-74.020308,40.700155,-73.940657,40.827572&dataType=B&format=application/json&verbose=0&nowcastonly=0&includerawconcentrations=0&API_KEY=7FD50518-C721-4C9A-861F-883367594091"
     response = http.request('GET', url)
     
     # decode json data into a dict object
     data = json.loads(response.data.decode('utf-8'))
     results_df = pd.DataFrame(data)
+    res =differenceDatetime(start_datetime)
+
+    if results_df.empty:
+        #si han pasado mas de dos horas y sigue estando vacio se pasa a la siguiente iteracion consulto para la hora anterior
+        if res.days < 0:
+            if res.seconds < 79200:
+                airQualityDataIngestion(start_datetime - timedelta(hours=1), file_dir)
+                print("se consulto la hora anterior")    
+        return False
     
+    try:
+        results_df.loc[0, "Parameter"]
+        results_df.loc[1, "Parameter"]
+    except:
+       
+        if res.days < 1:
+            if res.seconds <= 7200:      
+                return False
+ 
     results_df = results_df.rename(columns={"UTC": "datetime"}) 
     results_df["datetime"] = pd.to_datetime(results_df["datetime"])
     results_df = results_df[["datetime", "AQI", "Parameter", "Unit", "Value", "Category"]]
@@ -53,6 +79,7 @@ def airQualityDataIngestion(start_datetime, end_datetime, file_dir):
     airQuality_df.to_csv(file_dir, index=False)
 
     print(f"AirQualityApi: {file_dir}")
+    return True
   
 
-
+#print(airQualityDataIngestion("2021-04-18T13:43:00", "llamada a las 11am sin ozono con 36mint.csv"))

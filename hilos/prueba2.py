@@ -55,32 +55,52 @@ def weatherApi():
 """
 def write(type):
     print("write" + str(type))
-
-    traffic_file = current_dir + "traffic.csv"
-    airQuality_file = current_dir + "air.csv"
-    weather_file = current_dir + "weather.csv"
-
-    traffic_df = pd.read_csv(traffic_file)
-    #airQuality_df = pd.read_csv(airQuality_file)
-    #weather_df = pd.read_csv(weather_file)
-
-    traffic_df["datetime"] = pd.to_datetime(traffic_df["datetime"])
-    #airQuality_df["datetime"] = pd.to_datetime(airQuality_df["datetime"])
-    #weather_df["datetime"] = pd.to_datetime(weather_df["datetime"])
-   
-    time.sleep(2)
-    #df = pd.merge(traffic_df,airQuality_df, how= 'outer', on = 'datetime', suffixes= ('_TRAFFIC', '_AIR'))
-    #df = pd.merge(df, weather_df, how="outer", on="datetime", suffixes= ('','_WEATHER'))
     
+    traffic_file = current_dir + "traffic.csv"
+    airQuality_file = current_dir + "air1.csv"
+    weather_file = current_dir + "weather1.csv"
+    """
+    traffic_file = current_dir + "merge1.csv"
+    airQuality_file = current_dir + "air2.csv"
+    weather_file = current_dir + "weather2.csv"
+    """
+    df1= pd.read_csv(traffic_file)
+    df2= pd.read_csv(airQuality_file)
+    df3 = pd.read_csv(weather_file)
+    print(df1.head(3))
+    print(df2.head(3))
+   
+    df1["datetime"] = pd.to_datetime(df1["datetime"])
+    df2["datetime"] = pd.to_datetime(df2["datetime"])
+    df3["datetime"] = pd.to_datetime(df3["datetime"])
+
+    
+    #df = pd.concat([traffic_df, airQuality_df, weather_df], sort=False)
+    #df = df1.merge(df2, left_index=True, right_index=True)
+    #df = pd.concat([df1, df2], axis=1).reindex(df1.index)
+    #df = df1.append(df2, sort=False)
+    #df = pd.concat([df1, df2], ignore_index=True, sort=False)
+    #print(df.head(20))
+    
+    #time.sleep(2)
+    df = pd.merge(df1,df2, how= 'outer', on = 'datetime', suffixes= ('_TRAFFIC', '_AIR'))
+    #df = pd.merge(df, weather_df, how="outer", on="datetime", suffixes= ('','_WEATHER'))
+    print(df.head)
+  
     #df = df.sort_values("datetime")
 
-    file_name = data_folder + f"/merge.csv"
+    file_name = current_dir + f"/merge2.csv"
 
-    #df.to_csv(file_name,index=False)
+    df.to_csv(file_name,index=False)
 
-    print(f"Merge Traffic, AirQuality, Weather: {file_name}")
+    #print(f"Merge Traffic, AirQuality, Weather: {file_name}")
 
-
-trafficApi()
+#weatherDataIngestion("2021-04-11T11:00:00", "2021-04-11T13:00:00", f"{current_dir}weather1.csv")
+#weatherDataIngestion("2021-04-11T14:00:00", "2021-04-11T16:00:00", f"{current_dir}weather2.csv")
+#airQualityDataIngestion("2021-04-11T11:05:05", "2021-04-11T13:05:05", f"{current_dir}air1.csv")
+#airQualityDataIngestion("2021-04-11T14:05:05", "2021-04-11T16:05:05", f"{current_dir}air2.csv")
+#trafficDataIngestion(1000000, "2021-04-11T11:00:00","2021-04-11T16:00:00", f"{current_dir}traffic.csv")
+#trafficApi()
 #airApi()
 #weatherApi()
+write("hola")
