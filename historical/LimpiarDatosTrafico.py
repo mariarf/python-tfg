@@ -246,17 +246,6 @@ def comprobarRelleno(ruta,archivo):
             if (len(row[10])<2):
                 print(row)
     
-def listaCallesDistintas():
-    #LISTADO DE CALLES DISTINTAS QUE UTILIZA LA API DE TRÁFICO PARA EL DISTRITO DE MANHATTAN - 
-    # EL RESULTADO DE LA EJECUCIÓN DA 35 CALLES ÚNICAS.
-    with open("unidos1.csv", mode="r", newline='') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-
-        streets = set(map(lambda row: row[8], csv_reader))
-        print(streets)
-        print(len(streets))
-
- 
 
             
                 
@@ -273,4 +262,3 @@ def listaCallesDistintas():
 
 #listaCallesDistintas()
 
-prueba()
