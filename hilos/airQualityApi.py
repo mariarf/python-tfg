@@ -10,12 +10,12 @@ def convertTimeStr(time, from_time, to_time):
     from_time = pytz.timezone(from_time)
     to_time = pytz.timezone(to_time)
    
-
     res = dt.strptime(time,"%Y-%m-%dT%H:%M:%S")
     res = from_time.localize(res)
     res = res.astimezone(to_time)
     res = res.strftime("%Y-%m-%dT%H:%M:%S")
     return res
+
 #metodo que devuelve la diferencia entre la fecha local en NY y la fecha pasada por parametro
 def differenceDatetime(datetime_value):
         tz_NY = pytz.timezone('America/New_York') 
@@ -48,15 +48,15 @@ def airQualityDataIngestion(start_datetime, file_dir):
         #si han pasado mas de dos horas y sigue estando vacio se pasa a la siguiente iteracion consulto para la hora anterior
         if res.days < 0:
             if res.seconds < 79200:
+                #--------------------------------------revisa
+                print("se consultó la hora anterior")    
                 airQualityDataIngestion(start_datetime - timedelta(hours=1), file_dir)
-                print("se consulto la hora anterior")    
         return False
     
     try:
         results_df.loc[0, "Parameter"]
         results_df.loc[1, "Parameter"]
     except:
-       
         if res.days < 1:
             if res.seconds <= 7200:      
                 return False
