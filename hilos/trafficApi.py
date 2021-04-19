@@ -2,11 +2,8 @@
 # pip install pandas
 # pip install sodapy
 
-from types import TracebackType
 import pandas as pd
 from sodapy import Socrata
-import traceback
-import sys
 
 #datetime format: yyyy-mm-ddThh:mm:ss
 #devuelve false si el dataframe esta vacio y true si se escribe algo
@@ -24,6 +21,7 @@ def trafficDataIngestion(datalimit, start_datetime, file_dir):
     
     # Convert to pandas DataFrame
     results_df = pd.DataFrame.from_records(results)
+    
     if results_df.empty:
         return False
     #-----------------------------------------datetime - time_hour --------------------------------------#
