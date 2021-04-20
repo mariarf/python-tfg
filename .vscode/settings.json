@@ -1,0 +1,4 @@
+{
+    "editor.minimap.enabled": false,
+    "python.analysis.extraPaths": ["./historical_apis", "./historical_downloads", "./realtime_apis", "./unittest"]
+}
