@@ -1,6 +1,5 @@
 from datetime import datetime as dt
 from datetime import timedelta as timedelta
-from typing import List
 from trafficApi import *
 from airQualityApi import *
 from weatherApi import *
@@ -162,9 +161,9 @@ def write(file_name, merge_file_used=merge_file, list=[]):
 #los valores de @df1 en cada columna que se especifique y en cada linea que cumpla la condicion
 #devuelve true si ingresa aunque sea una vez, si la fecha es mayor de a la de los datos guardados ya salimos
 def fileConcatMerge(df0, df1, columns, condition):
-    
+    sms = "fileConcatMerge: executed"
+    print(sms)
     written = False #si se escribe aunque sea una linea se pone a TRUE
-    first_in = True #si es la primera vez que se entra
     
     """ 1T: PRIMERA HORA: TRÁFICO SIN VALORES
         --Si para la primera hora consultada al inicio del programa no se encontraron valores de tráfico
@@ -173,44 +172,78 @@ def fileConcatMerge(df0, df1, columns, condition):
     res = pd.to_datetime(df0.iloc[0,0], format="%Y-%m-%d %H:%M:%S") > pd.to_datetime(df1["datetime"], format="%Y-%m-%d %H:%M:%S")
     if res.bool():
         df0 = pd.merge(df0, df1, on=list_airQuality, how="outer", sort=True) 
-        print(df0.head())  
-        return [True, df0, "PRIMERA HORA: TRÁFICO SIN VALORES"]
-
-    #La fecha de df1 se encuentra en la tabla df0
-    if df0.loc[df0.index[-1], "datetime"] >= df1["datetime"]:     
-            #La fecha se encuentra pero todavía no están todos los datos correspondientes a la hora
-            #consultada por lo que se espera a tener todos los datos de traffico para escribir
+        sms = "fileConcatMerge: PRIMERA HORA: TRÁFICO SIN VALORES"
+        print(sms)  
+        return [True, df0, sms]
+    
+    """ 2T: FECHAS COINCIDEN: AUN FALTAN VALORES PARA HORA TRÁFICO
+        --Si para la fecha de tráfico aun no se tienen todos los valores de la hora
+            *se espera a que se rellene todos lo valores para la hora en cuestión
+    """
+    if df0.loc[df0.index[-1], "datetime"] == df1["datetime"]:     
             traffic_time = df0.loc[df0.index[-1], "datetime_traffic"]
             data_time = dt.strptime(str(df1["datetime"]), "%Y-%m-%d %H:%M:%S")
             res = traffic_time - data_time
             if res.seconds < 3599:
-                print("fileconcat: WAITING TO NEW VALUES OF TRAFFIC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                return False
-            else:
-                first_in ==False
-    else:
-        #si pasa esto es que aun no hay valores de trafico disponibles para la fecha buscada
-        #se espera
-        print("WAITING TO NEW VALUES OF TRAFFIC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        return False
+                sms = "fileConcatMerge: FECHAS COINCIDEN: AUN FALTAN VALORES PARA HORA TRÁFICO"
+                print(sms)  
+                return [False, df0, sms]
 
-    for index, row in df0[::-1].iterrows():   #se itera en reversa 
+    """ 3T: FECHA MAYOR: AUN FALTAN VALORES PARA TRÁFICO
+            --Si la fecha consultada aun no tiene valores de tráfico
+                *se espera hasta que se registren nuevos valores de tráfico
+
+    """
+    if df0.loc[df0.index[-1], "datetime"] < df1["datetime"]:
+        sms =  "fileConcatMerge: FECHA MAYOR: AUN FALTAN VALORES PARA TRÁFICO"
+        print(sms)
+        return [False, df0, sms]
+    
+    """ ITERAR: SE ESCRIBEN DATOS Y SE BUSCAN DATOS FALTANTES
+            --Se itera en orden inverso, es más eficiente a largo plazo
+            --Si no se cumplieron ninguna de las condiciones anteriores
+                *es porque la fecha consultada es
+                    **menor que el último registro de fecha de tráfico
+                    **igual que el último registro de fecha de tráfico: pero ya
+                      están todos los valores de tráfico para la hora consultada
+            --Se escriben los valores de la hora consultada en df0
+            --Detecta si hay un salto temporal mayor a 1 hora en los datos de tráfico
+    """
+    for index, row in df0[::-1].iterrows(): 
+        """ 4T: REGISTRO VALORES: SE ESCRIBEN LOS VALORES OBTENIDOS
+                --Si se encuentra aunque sea una fecha que coincida
+                    *se escriben los valores de df1 en donde corresponda
+                    *written se pasa a True porque se encontro al menos una coincidencia
+        """
         if row["datetime"] == df1["datetime"]:
-            #coinciden las fechas por lo que se rellena la fila
-            print("Written:")
-            print(df1["datetime"])
+            if df0.loc[index, i ] == df1[i]:
+                written = True
+                sms = "fileConcatMerge: FECHAS COINCIDEN: VALORES YA ESTAN REGISTRADOS"
+                break
             for i in columns[1:]:
-                df0.loc[index, i ] = df1[i]
+                df0.loc[index, i ] == df1[i]           
             written = True
-        if row["datetime"] < df1["datetime"]:  #la fecha en df1 es mayor por lo que ya no tiene sentido seguir iterando ya que esta ordenado
-            if not written:
-                #se encontro un salto en los datos de trafico
-                #se introduce la fila para la fecha al documento
-                print("JUMP")
-                df0 = pd.merge(df0, df1, on=list_airQuality, how="outer", sort=True)     
-            return True
+        if row["datetime"] < df1["datetime"]: 
+            """ 4T: FIN ESCRITURA: SE REGISTRARON LOS VALORES
+                    --Si se ha escrito al menos un valor y ya se pasa a la hora anterior
+                        *se han escrito los valores de la hora correspondiente
+            """
+            if written:
+                sms = "fileConcatMerge: FIN ESCRITURA: SE REGISTRARON LOS VALORES"
                 
-    return written
+            """ 5T: SALTO EN TRÁFICO: NO EXISTEN VALORES DE TRÁFICO HORA
+                    --Si no se ha escrito nada y se pasa a la hora anterior
+                        *significa que no hay datos de tráfico para esa hora
+                    --Se registra el valor en orden, dejando los datos de tráfica NaN
+            """
+            if not written:
+                df0 = pd.merge(df0, df1, on=list_airQuality, how="outer", sort=True) 
+                written = True
+                sms = "fileConcatMerge: SALTO EN TRÁFICO: NO EXISTEN VALORES DE TRÁFICO HORA"
+            
+            break
+    print(sms)           
+    return [written, df0, sms]
 
 def ini():
     fileCreator(merge_file, list_merge) 
@@ -238,9 +271,3 @@ def pruebasMari():
     print("pepe")
     #write("tests_threads/1T-new_date.csv","tests_threads/1T-merge_file.csv", list_airQuality)
 
-
-pruebasMari()
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
