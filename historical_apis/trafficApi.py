@@ -18,6 +18,7 @@ def trafficDataIngestion(datalimit, start_datetime, end_datetime):
     # dictionaries by sodapy.
     #date = "data_as_of >" + "'" + date + "'"  #para a partir de una fecha
     date = f"data_as_of between '{start_datetime}' and '{end_datetime}'"
+    print(date)
     
     columns = "data_as_of, id, speed, travel_time, link_name"
 
@@ -45,7 +46,7 @@ def trafficDataIngestion(datalimit, start_datetime, end_datetime):
     print(f"TrafficApi: {file_name}")
 
 
-#trafficDataIngestion(1000000, "2021-02-01T00:00:00", "2021-02-28T23:59:59")
+#trafficDataIngestion(1000000, "2020-01-01T00:00:00", "2020-01-16T23:59:59")
 #trafficDataIngestion(1000000, "2021-03-01T00:00:00", "2021-03-31T23:59:59")
 
 

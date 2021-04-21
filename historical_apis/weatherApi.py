@@ -31,4 +31,4 @@ def weatherDataIngestion(start_datetime, end_datetime):
 
     print(f"WeatherApi: {file_name}")
 
-#weatherDataIngestion("2021-04-04T00:00:00", "2021-04-04T18:01:00")
+#weatherDataIngestion("2020-04-04T00:00:00", "2020-04-04T18:01:00")

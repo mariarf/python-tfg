@@ -4,7 +4,6 @@ import json, os, urllib3, certifi, datetime, pytz
 def convertTimeStr(time, from_time, to_time):
     from_time = pytz.timezone(from_time)
     to_time = pytz.timezone(to_time)
-   
 
     res = datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S")
     res = from_time.localize(res)

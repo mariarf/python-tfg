@@ -185,7 +185,6 @@ def fileConcatMerge(df0, df1, columns):
     """
 
     for i in columns[1:]:
-        print(i)
         df0.loc[df0.datetime == df1.loc[0,"datetime"], i]= df1.loc[0, i]
     
     sms = "fileConcatMerge: 3T_W REGISTRO CORRECTO"
