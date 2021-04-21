@@ -1,6 +1,6 @@
-from trafficApi import *
-from airQualityApi import *
-from weatherApi import *
+from historical_apis/trafficApi import *
+from historical_apis/airQualityApi import *
+from historical_apis/weatherApi import *
 import os, time, datetime
 import pandas as pd
 import pytz, calendar

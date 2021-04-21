@@ -123,8 +123,8 @@ def zonaManhattan():
     df.to_csv(file, index=False)
 
 
-#dividirManhattan() 
+dividirManhattan() 
 
-#zonaManhattan()
+zonaManhattan()
 
 mostrarPuntos()
