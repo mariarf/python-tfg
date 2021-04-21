@@ -11,7 +11,7 @@ class test_realtimeApis(unittest.TestCase):
 
         def test(self):
                 print("pepeeeeeeeeeeeeee")
-                list = ["1T_W_F/1T", "1T_W_F/2T", "2T_W_F/1T", "2T_W_F/2T", "3T_W_F"]
+                list = ["2T_W","1T_W_F/1T", "1T_W_F/2T", "2T_W_F/1T", "2T_W_F/2T", "3T_W_F"]
 
                 for i in list:
                         test = i
