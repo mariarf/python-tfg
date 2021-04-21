@@ -55,7 +55,12 @@ def historicalValues():
     df_climate.drop(["valid", "station", "alti", "skyl1","skyl2","skyl3","skyl4", "ice_accretion_3hr","ice_accretion_6hr","peak_wind_gust","peak_wind_drct","peak_wind_time","feel","metar"],axis=1,inplace=True)
     column_reorder = ["DateClimate","TimeClimate","dwpf", "relh", "sknt", "gust", "drct", "p01i", "ice_accretion_1hr", "vsby", "skyc1", "mslp", "wxcodes"]
     df_climate = df_climate.reindex(columns=column_reorder)
-    
+    """
+    print(type(df["Date"]))
+    print(type(df["Time"]))
+    print(type(df_climate["Time"]))
+    print(type(df_climate["Time"]))
+    """
     #print(df_climate.head(20))
     df["Date"]=df["Date"].astype('datetime64[ns]')
     df["Time"]=df["Time"].astype('datetime64[ns]')
@@ -67,7 +72,7 @@ def historicalValues():
     print(type(df_climate["DateClimate"]))
     print(type(df_climate["TimeClimate"]))
 
-    df = pd.merge(df, df_climate, how="outer" , left_on=["Date","Time"], right_on=["DateClimate","TimeClimate"])
+    df = pd.merge(df, df_climate, how="inner" , left_on=["Date","Time"], right_on=["DateClimate","TimeClimate"])
     print(df.describe())
 
     df["Time"]=pd.to_datetime(df["Time"]).dt.strftime('%H:%M:%S')
@@ -79,14 +84,17 @@ def historicalValues():
     print(df["DateClimate"].head(20))
     print(df["TimeClimate"].head(20))
 
-    df.drop(["DateClimate", "TimeClimate", "DateCont"],axis=1,inplace=True)
-    final_reorder = ["Date", "Time", "Weekday", "ID","Speed","TravelTime","Link_name","ValueCont","dwpf","relh","sknt","gust","drct","p01i","ice_accretion_1hr","vsby","skyc1","mslp","wxcodes"]
-    df = df.reindex(columns=final_reorder)
-    df.to_csv(output_csv, index=False)
+ 
+    #df.to_csv(output_csv, index=False)
     #print(df_climate["gust"].describe())
+    #print(df_climate["ice_accretion_1hr"].describe())
     """
+    print(df_climate["wxcodes"].describe())
     
     print((df_climate["skyc1"] != "CLR").describe())
+    print(df_climate["skyc2"].describe())
+    print(df_climate["skyc3"].describe())
+    print(df_climate["skyc4"].describe())
     
 
     for col in df.columns:
@@ -118,11 +126,10 @@ def pruebaClima():
     print(df_climate["skyc4"].describe())
     """
 #pruebaClima()
-"""
+
 def prueba():
     file_climate = os.getcwd().split("\TFG")[0] + "/TFG/apis_data/weather_dataIngestion.csv"
     df_climate = pd.read_csv(file_climate, header=None)
     print(df_climate.head(20))
-"""
-#prueba()
 
+#prueba()
