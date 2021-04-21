@@ -1,0 +1,43 @@
+  """ ITERAR: SE ESCRIBEN DATOS Y SE BUSCAN DATOS FALTANTES
+            --Se itera en orden inverso, es más eficiente a largo plazo
+            --Si no se cumplieron ninguna de las condiciones anteriores
+                *es porque la fecha consultada es
+                    **menor que el último registro de fecha de tráfico
+                    **igual que el último registro de fecha de tráfico: pero ya
+                      están todos los valores de tráfico para la hora consultada
+            --Se escriben los valores de la hora consultada en df0
+            --Detecta si hay un salto temporal mayor a 1 hora en los datos de tráfico
+    """
+    for index, row in df0[::-1].iterrows(): 
+        """ 4T: REGISTRO VALORES: SE ESCRIBEN LOS VALORES OBTENIDOS
+                --Si se encuentra aunque sea una fecha que coincida
+                    *se escriben los valores de df1 en donde corresponda
+                    *written se pasa a True porque se encontro al menos una coincidencia
+        """
+        if row["datetime"] == df1["datetime"]:
+            if df0.loc[index, i ] == df1[i]:
+                written = True
+                sms = "fileConcatMerge: FECHAS COINCIDEN: VALORES YA ESTAN REGISTRADOS"
+                break
+            for i in columns[1:]:
+                df0.loc[index, i ] == df1[i]           
+            written = True
+        if row["datetime"] < df1["datetime"]: 
+            """ 4T: FIN ESCRITURA: SE REGISTRARON LOS VALORES
+                    --Si se ha escrito al menos un valor y ya se pasa a la hora anterior
+                        *se han escrito los valores de la hora correspondiente
+            """
+            if written:
+                sms = "fileConcatMerge: FIN ESCRITURA: SE REGISTRARON LOS VALORES"
+                
+            """ 5T: SALTO EN TRÁFICO: NO EXISTEN VALORES DE TRÁFICO HORA
+                    --Si no se ha escrito nada y se pasa a la hora anterior
+                        *significa que no hay datos de tráfico para esa hora
+                    --Se registra el valor en orden, dejando los datos de tráfica NaN
+            """
+            if not written:
+                df0 = pd.merge(df0, df1, on=list_airQuality, how="outer", sort=True) 
+                written = True
+                sms = "fileConcatMerge: SALTO EN TRÁFICO: NO EXISTEN VALORES DE TRÁFICO HORA"
+            
+            break

@@ -68,16 +68,16 @@ def trafficApi(iter_time):
 """ AirApi y Weather:
     Se consultan datos que se traen por hora
     --Al registrarlos en merge:
-        * La fecha consultada debe ser menor que o igual a la fecha del último registro para tráfico en merge
+        * La fecha consultada debe ser menor que la fecha del último registro para tráfico en merge
         * Si se detecta un salto temporal en los datos de tráfico se introduce la línea en orden sin datos de tráfico
-        * Si no hay valores para una Fecha y han pasado más de 2 horas se guarda el valor anterior
+        * APIS - Si no hay valores para una Fecha y han pasado más de 2 horas se guarda el valor anterior
 
     --Se toma la hora de ejecución y a medida que se rellenen los datos se le va sumando 1 hora
 
     --Recomendaciones: hacer iteraciones cada 30 minutos al menos. 
                        Las apis tardan entre 1 hora y 2 horas en devolver los datos deseados. 
-                       Por lo que de esta forma si se consulta a la 1 de ejecución y la api 
-                       genera el valor para 1h25min no se tiene que esperar 2 horas enteras.
+                       Por lo que de esta forma si se consulta al pasar 1h de ejecución y la api 
+                       genera el valor para cuando ha pasado 1h25min no se tiene que esperar 2h enteras.
 """
 def airApi(iter_time):
     print("air: executed")
@@ -85,42 +85,34 @@ def airApi(iter_time):
     start_datetime = ini_datetime
     next_iter = False 
 
-    """ Lógica para la primera vez que se ejecuta el código
-    """
-    while not os.path.isfile(airQuality_file) :
-        print("air: file not found")
-        time.sleep(iter_time)
-        if airQualityDataIngestion(start_datetime, airQuality_file):
-            start_datetime = dt.strptime(start_datetime, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=1)
-            start_datetime = str(start_datetime).replace(" ","T")
-    while not next_iter:
-        write_thread = threading.Thread(target=write, args = (airQuality_file,) )
-        next_iter = write_thread.start()
-        if not next_iter:
-            time.sleep(iter_time/2)
-      
-    """ Se empieza a iterar
-    """
     count = 0 #-------------------------------------------------------contador que debe BORRARSE para hacer ejecución mas rápida
     while True:
         print(f"air: call {count}")
-        time.sleep(iter_time/2)
+        time.sleep(iter_time)
         while not airQualityDataIngestion(start_datetime, airQuality_file):
             time.sleep(iter_time)
          
-        write_thread = threading.Thread(target=write, args = (airQuality_file,) )
+        write_thread = threading.Thread(target=write, args = (airQuality_file, merge_file, list_airQuality) )
         next_iter = write_thread.start()
         while not next_iter:
                 print("air: WAITING TO NEW VALUES FOR TRAFFIC")
                 time.sleep(iter_time/2)
                 write_thread = threading.Thread(target=write, args = (airQuality_file,) )
                 next_iter = write_thread.start()
-        start_datetime = dt.strptime(str(start_datetime), "%Y-%m-%dT%H:%M:%S")+timedelta(hours=1)
+        start_datetime = dt.strptime(str(start_datetime), "%Y-%m-%dT%H:%M:%S") + timedelta(hours=1)
         start_datetime = str(start_datetime).replace(" ","T")
         count += 1
 
-#yaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa no leas más
-#devuelve falso si faltan valores para trafico
+""" write:
+    *** recibe dos direcciones de archivos @file_name,  @merge_file_used y una lista @list con nombres de columnas
+    - Si el @file_name es el correspondiente a tráfico
+        *se registran los nuevos valores
+    - Si @merge_file_used esta en blanco
+        *se devuelve false y se sale del metodo
+    - else
+        *Se llama al metodo fileConcatMerge
+            se devuelve el resultado de la llamada
+"""
 def write(file_name, merge_file_used=merge_file, list=[]):
     print("write type:" + str(file_name))
     
@@ -129,28 +121,38 @@ def write(file_name, merge_file_used=merge_file, list=[]):
     df0["datetime_traffic"] = pd.to_datetime(df0["datetime_traffic"])
 
     df1 = pd.read_csv(file_name)
-    df1["datetime"] = pd.to_datetime(df1["datetime"])
-    
-    next_iter = False
+    df1["datetime"] = pd.to_datetime(df1["datetime"]) 
 
+    """ 1T_W: SE REGISTRAN VALORES DE TRÁFICO
+        2T_W: NO HAY VALORES DE TRÁFICO EN MERGE
+            * se espera para guardar cualquier otro valor distinto a los de tráfico
+    """   
     if file_name == traffic_file:
         df0 = pd.concat([df0, df1])
         df0.to_csv(merge_file_used, index= False)
         return True
     elif df0.shape[0] <= 0:  #es decir aun no se guardan datos de trafico
         return False
-    """ CONDICIÓN ^^Línea de arriba - if TRUE: FIN FALSE: CONTINUE
+    """ CONDICIÓN ^^Línea de arriba - if TRUE: FIN else FALSE: CONTINUE
         -- Si el documento no tiene ni un solo registro guardado no se ejecuta el resto del código
     """
-    res = fileConcatMerge(df0, df1, list, "datetime")
-    next_iter = res[0]
-    df0 = res[1]
+    result = fileConcatMerge(df0, df1, list)
+    next_iter = result[0]
+    df0 = result[1]
             
     df0.to_csv(merge_file_used, index= False)
+    print(result[2])
     return next_iter
 
-""" fileConcatMerge: 
-    Metodo que recibe dos dataframes @df0 y @df1 y una lista con nombres de columnas @columns
+""" fileConcatMerge:   
+    *** recibe dos dataframes @df0 y @df1 y una lista con nombres de columnas @columns
+    -Incluye en @df0 los valores de @df1 de @columns cuando la columna "datetime" coincide
+    -Sólo registra los valores de @df1 en @df0 
+        *Si, se han recogido todos los valores de tráfico para el valor "datetime" en @df0
+            es decir, se registra cuando el último valor de @df0["datetime"] es mayor que @df1["datetime"]
+    -En caso de no encontrar coincidencias:
+        *Si se cumple la condicion anterior, indica que no hay valores de tráfico para el "datetime" consultado
+            entonces, se registran los valores de @df1 para "datetime" y se dejan en NaN los valores de tráfico
 """
 def fileConcatMerge(df0, df1, columns):
     sms = "fileConcatMerge: executed"
@@ -158,7 +160,7 @@ def fileConcatMerge(df0, df1, columns):
         
     res = pd.to_datetime(df0.loc[df0.index[-1], "datetime"], format="%Y-%m-%d %H:%M:%S") <= pd.to_datetime(df1["datetime"], format="%Y-%m-%d %H:%M:%S")
     if res.bool():
-        """ 3T1T_W: AUN FALTAN VALORES DE TRÁFICO 
+        """ 1T_W_F: AUN FALTAN VALORES DE TRÁFICO 
         -- Hasta que no se registre la hora entera de tráfico no se guardan los datos
             * return false, se espera a que esten todos los valores para la hora a registrar               
         """
@@ -167,7 +169,7 @@ def fileConcatMerge(df0, df1, columns):
     else:
         result = df0["datetime"].isin(df1["datetime"]).any().any()
         if not result: 
-            """ 5T2T_W: SALTO EN VALORES DE TRÁFICO
+            """ 2T_W_F: SALTO EN VALORES DE TRÁFICO
             -- Hay valores de tráfico mayores a la hora consulta pero NO se encontraron coincidencias
                 *return true, se registran los nuevos valores
             """
@@ -178,7 +180,7 @@ def fileConcatMerge(df0, df1, columns):
     """ ULTIMA HORA DE TRÁFICO ES MAYOR QUE LA HORA A REGISTRAR
         HAY AL MENOS UNA FECHA QUE COINCIDE
     """
-    """ 3T_W: REGISTRO CORRECTO
+    """ 3T_W_F: REGISTRO CORRECTO
         -- Se pasa una lista de valores y se registran cuando @datetime coincida
     """
 
@@ -201,7 +203,11 @@ def ini():
     #airApi(min_29, hour_1)
     #weatherApi(min_29, hour_1)
 
-#metodo que crea el archivo merge crea cabecera
+""" fileCreator:
+    *** recibe una direccion/path @file_name y una lista @list con nombres de columnas
+    - Si el archivo @file_name no existe
+        *entonces lo crea y le asigna @list como cabecera
+"""
 def fileCreator(file_name, list): 
     if not os.path.isfile(file_name) :
             file = open(file_name, 'w')
@@ -210,9 +216,3 @@ def fileCreator(file_name, list):
                 writer = csv.DictWriter(file, fieldnames = list)
                 # writing data row-wise into the csv file
                 writer.writeheader()
-
-def pruebasMari():
-
-    print("pepe")
-    #write("tests_threads/1T-new_date.csv","tests_threads/1T-merge_file.csv", list_airQuality)
-
