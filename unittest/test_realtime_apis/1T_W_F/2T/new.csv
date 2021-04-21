@@ -1,0 +1,2 @@
+datetime,AQI_PM2.5,Parameter_PM2.5,Unit_PM2.5,Value_PM2.5,Category_PM2.5,AQI_OZONE,Parameter_OZONE,Unit_OZONE,Value_OZONE,Category_OZONE
+2021-04-18T14:00:00,14.0,PM2.5,UG/M3,3.4,1.0,20.0,OZONE,PPB,22.0,1.0
