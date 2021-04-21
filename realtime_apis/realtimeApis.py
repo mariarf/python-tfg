@@ -149,71 +149,46 @@ def write(file_name, merge_file_used=merge_file, list=[]):
     df0.to_csv(merge_file_used, index= False)
     return next_iter
 
-#pasados dos dataframe los indices de las columnas y la condicion de union
-#se escribe en @df0 cuando se cumpla @condition en las columnas dadas @columns 
-#los valores de @df1 en cada columna que se especifique y en cada linea que cumpla la condicion
-#devuelve true si ingresa aunque sea una vez, si la fecha es mayor de a la de los datos guardados ya salimos
-def fileConcatMerge(df0, df1, columns, condition):
+""" fileConcatMerge: 
+    Metodo que recibe dos dataframes @df0 y @df1 y una lista con nombres de columnas @columns
+"""
+def fileConcatMerge(df0, df1, columns):
     sms = "fileConcatMerge: executed"
     print(sms)
- 
-    result = df0["datetime"].isin(df1["datetime"]).any().any()
-    if not result:
-
-        """ 3T: FECHA MAYOR: AUN FALTAN VALORES PARA TRÁFICO
-                --Si la fecha consultada aun no tiene valores de tráfico
-                    *se espera hasta que se registren nuevos valores de tráfico
+        
+    res = pd.to_datetime(df0.loc[df0.index[-1], "datetime"], format="%Y-%m-%d %H:%M:%S") <= pd.to_datetime(df1["datetime"], format="%Y-%m-%d %H:%M:%S")
+    if res.bool():
+        """ 3T1T_W: AUN FALTAN VALORES DE TRÁFICO 
+        -- Hasta que no se registre la hora entera de tráfico no se guardan los datos
+            * return false, se espera a que esten todos los valores para la hora a registrar               
         """
-        res = pd.to_datetime(df0.loc[df0.index[-1], "datetime"], format="%Y-%m-%d %H:%M:%S") < pd.to_datetime(df1["datetime"], format="%Y-%m-%d %H:%M:%S")
-        print(f"3T SI ES MAYOR DF0 < DF1: {res}")
-
-        if res.bool():
-            sms =  "fileConcatMerge: 3T FECHA MAYOR: AUN FALTAN VALORES PARA TRÁFICO"
-            print(sms)
-            return [False, df0, sms]
-        #traffico es mayor que la fecha consultada es que hay un salto
-        else:
+        sms =  "fileConcatMerge: 1T_W AUN FALTAN VALORES PARA TRÁFICO"
+        return [False, df0, sms]
+    else:
+        result = df0["datetime"].isin(df1["datetime"]).any().any()
+        if not result: 
+            """ 5T2T_W: SALTO EN VALORES DE TRÁFICO
+            -- Hay valores de tráfico mayores a la hora consulta pero NO se encontraron coincidencias
+                *return true, se registran los nuevos valores
+            """
             df0 = pd.merge(df0, df1, on=list_airQuality, how="outer", sort=True) 
+            sms = "fileConcatMerge: 2T_W SALTO EN VALORES DE TRÁFICO"
             return [True, df0, sms]
-  
             
-    """ 2T: FECHAS COINCIDEN: AUN FALTAN VALORES PARA HORA TRÁFICO
-        --Si para la fecha de tráfico aun no se tienen todos los valores de la hora
-            *se espera a que se rellene todos lo valores para la hora en cuestión
-    """ 
-    traffic_time = dt.strptime(str(df0.loc[df0.index[-1], "datetime_traffic"]),"%Y-%m-%d %H:%M:%S")
-    datetime_value = dt.strptime(str(df1.loc[df0.index[0], "datetime"]), "%Y-%m-%d %H:%M:%S")
-    res = traffic_time - datetime_value
-    if res.seconds < 3599:
-        sms = "fileConcatMerge: FECHAS COINCIDEN: AUN FALTAN VALORES PARA HORA TRÁFICO"
-        return[False, df0, sms]
-    
-    """      --Si no se cumplieron ninguna de las condiciones anteriores
-                *es porque la fecha consultada es
-                    **menor que el último registro de fecha de tráfico
-                    **igual que el último registro de fecha de tráfico: pero ya
-                      están todos los valores de tráfico para la hora consultada
-            --Se escriben los valores de la hora consultada en df0
-            --Detecta si hay un salto temporal mayor a 1 hora en los datos de tráfico
-    """ 
-
-    """ 4T: REGISTRO VALORES: SE ESCRIBEN LOS VALORES OBTENIDOS
-                --Si no se encuenta una fecha que coincida 
-                    *se insertan los valores en una nueva fila
-                --Si se encuentra aunque sea una fecha que coincida
-                    *se escriben los valores de df1 en donde corresponda
-                
+    """ ULTIMA HORA DE TRÁFICO ES MAYOR QUE LA HORA A REGISTRAR
+        HAY AL MENOS UNA FECHA QUE COINCIDE
     """
- 
-    # LLEGADOS AQUI SE SABE QUE EL ULTIMO VALOR DE TIEMPO PARA TRAFICO ES MAYOR QUE EL VALOR DE AIR/CLIMA       
-    #SE RELLENAN LAS COLUMNAS DONDE SE CUMPLE:
+    """ 3T_W: REGISTRO CORRECTO
+        -- Se pasa una lista de valores y se registran cuando @datetime coincida
+    """
 
     for i in columns[1:]:
         print(i)
         df0.loc[df0.datetime == df1.loc[0,"datetime"], i]= df1.loc[0, i]
     
+    sms = "fileConcatMerge: 3T_W REGISTRO CORRECTO"
+    
     return[True, df0, sms]
-
 
 def ini():
     fileCreator(merge_file, list_merge) 

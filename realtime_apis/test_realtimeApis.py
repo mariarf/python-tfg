@@ -9,6 +9,8 @@ class test_realtimeApis(unittest.TestCase):
     list_weather = ["datetime","Minimum Temperature","Maximum Temperature","Temperature","Dew Point","Relative Humidity","Heat Index","Wind Speed","Wind Gust","Wind Direction","Wind Chill","Precipitation","Precipitation Cover","Snow Depth","Visibility","Cloud Cover","Sea Level Pressure","Conditions"]
    
 
+    
+
 #    """ 1T: 
 #            --> Si es la PRIMERA VEZ que se ejecuta el código y no se encuentran valores para tráfico
 #                *se registra el valor correspondiente
@@ -106,21 +108,8 @@ class test_realtimeApis(unittest.TestCase):
     def test_register_value(self):
         """4T-1
         """
-        dir = "unittest/test_realtime_apis"
-        new = f"{dir}/4T/4T-1/new.csv"
-        merge = f"{dir}/4T/4T-1/merge.csv"
-
-        res = write(new, merge, list_airQuality)
-
-        merge_res = pd.read_csv(merge)
-        expected = pd.read_csv(f"{dir}/4T/4T-1/expected.csv")
-
-        self.assertEqual(res, True)
-        assert_frame_equal(merge_res, expected)
-
-        #se restablece el valor del original
-        merge_original = pd.read_csv(f"{dir}/4T/4T-1/merge_original.csv")
-        merge_original.to_csv(merge, index = False)
+        standard_model_test(self, list_airQuality, "4T/4T-1")
+        standard_model_test(self, list_airQuality, "4T/4T-2")
 
 
     """ 5t:
@@ -130,5 +119,22 @@ class test_realtimeApis(unittest.TestCase):
     #def test_jump():
     #    print("Hacemos un test")
 
+    
+
+def standard_model_test(self, list, test):
+        dir = "unittest/test_realtime_apis"
+        new = f"{dir}/{test}/new.csv"
+        merge = f"{dir}/{test}/merge.csv"
+        res = write(new, merge, list)
+        merge_res = pd.read_csv(merge)
+        expected = pd.read_csv(f"{dir}/{test}/expected.csv")
+
+        self.assertEqual(res, True)
+        assert_frame_equal(merge_res, expected)
+        
+        #se restablece el valor del original
+        merge_original = pd.read_csv(f"{dir}/{test}/merge_original.csv")
+        merge_res.to_csv(f"{dir}/{test}/merge_res.csv", index = False)
+        merge_original.to_csv(merge, index = False)
 if __name__ == "__main__":
     unittest.main()
