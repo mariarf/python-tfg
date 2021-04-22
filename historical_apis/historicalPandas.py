@@ -4,6 +4,8 @@ import csv
 import datetime
 from datetime import date
 import os
+from os import path
+from os import walk
 from pathlib import Path
 
 
@@ -96,7 +98,7 @@ def historicalValues():
     for col in df.columns:
         print(col)
     """
-historicalValues()
+#historicalValues()
 
 def pruebaClima():
     file_climate = os.getcwd().split("\TFG")[0] + "/TFG/originals/condicionesClimaticas.csv"
@@ -132,3 +134,27 @@ def prueba():
     print(dftrain.head(20))
 
 #prueba()
+
+
+def mergeFilesWithLocation(location, outputname):
+    
+    path = os.getcwd().split("\TFG")[0] + location
+    dirs = os.listdir(path)
+    df = pd.DataFrame()
+    undesired_paths = ["airQuality_dataIngestion.csv","airQuality_historical", "historical", "historical_register.csv", "traffic_dataIngestion.csv", "traffic_historical", "weather_dataIngestion.csv", "weather_historical"]
+    
+    for file in dirs:
+        
+        if file in undesired_paths:
+            continue
+        else:
+            file = path + file
+            df_concat = pd.read_csv(file, header=None, low_memory=False)
+            df = pd.concat([df,df_concat])
+            print("fin" + file)
+
+    print(df.shape[0])
+    output_csv = os.getcwd().split("\TFG")[0] + location + outputname + ".csv"
+    df.to_csv(output_csv, index=False)
+
+mergeFilesWithLocation("/TFG/apis_data/", "historicalMerge")
