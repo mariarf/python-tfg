@@ -5,7 +5,7 @@ import os, time, datetime
 import pandas as pd
 import pytz
 
-print(end_datetime)
+
 def apisRequest():
     data_folder = os.getcwd().split("\TFG")[0] + "/TFG/apis_data"
     file_to_open = data_folder + "/historical_register.csv"
