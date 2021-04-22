@@ -27,6 +27,8 @@ def airQualityDataIngestion(start_datetime, end_datetime):
     http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',ca_certs=certifi.where())
 
     # get data from the API
+    #keys: 3085AC4D-D4B0-4876-BF8F-FFE541AC6932
+    #      7FD50518-C721-4C9A-861F-883367594091
     url = f"https://www.airnowapi.org/aq/data/?startDate={start_datetime}&endDate={end_datetime}&parameters=OZONE,PM25&BBOX=-74.020308,40.700155,-73.940657,40.827572&dataType=B&format=application/json&verbose=0&nowcastonly=0&includerawconcentrations=0&API_KEY=7FD50518-C721-4C9A-861F-883367594091"
     response = http.request('GET', url)
     
@@ -55,3 +57,4 @@ def airQualityDataIngestion(start_datetime, end_datetime):
   
 
 
+#airQualityDataIngestion("2019-02-05T00:00:00", "2019-02-06T23:59:59")

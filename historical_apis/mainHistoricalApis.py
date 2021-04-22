@@ -1,6 +1,6 @@
-from historical_apis/trafficApi import *
-from historical_apis/airQualityApi import *
-from historical_apis/weatherApi import *
+from trafficApi import *
+from airQualityApi import *
+from weatherApi import *
 import os, time, datetime
 import pandas as pd
 import pytz, calendar
@@ -20,7 +20,7 @@ def apisRequest():
     end_datetime = end_datetime - datetime.timedelta(hours=4)
     end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%S")
 
-    start_datetime = datetime.datetime.strptime("2020-01-01T00:00:00","%Y-%m-%dT%H:%M:%S")
+    start_datetime = datetime.datetime.strptime("2021-01-01T00:00:00","%Y-%m-%dT%H:%M:%S")
     end_datetime = start_datetime + datetime.timedelta(days=14, hours= 23, seconds=3599)
     end_datetime = str(end_datetime).replace(" ","T")
     start_datetime = str(start_datetime).replace(" ","T")
@@ -29,7 +29,7 @@ def apisRequest():
     #2020-febrero
     #enero, marzo, mayo, julio, agosto, octubre, diciembre,
     count = 0
-    while count < 24:  
+    while count < 7:  
 
     
         trafficDataIngestion(10000000, start_datetime, end_datetime)
