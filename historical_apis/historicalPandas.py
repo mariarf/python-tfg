@@ -100,48 +100,33 @@ def historicalValues():
     """
 #historicalValues()
 
-def pruebaClima():
-    file_climate = os.getcwd().split("\TFG")[0] + "/TFG/originals/condicionesClimaticas.csv"
-    df_climate = pd.read_csv(file_climate, names=["station","valid","tmpf","dwpf","relh","drct","sknt","p01i","alti","mslp","vsby","gust","skyc1","skyc2","skyc3","skyc4","skyl1","skyl2","skyl3","skyl4","wxcodes","ice_accretion_1hr","ice_accretion_3hr","ice_accretion_6hr","peak_wind_gust","peak_wind_drct","peak_wind_time","feel","metar"], header=None)
+def mergeZones(location):
+
+    #file_to_merge = os.getcwd().split("\TFG")[0] + location
+    output_csv = os.getcwd().split("\TFG")[0] + location 
+    zone_file = os.getcwd().split("\TFG")[0] + "/TFG/historical_data/uniqueStreets.csv"
     
-    df_climate = df_climate.iloc[1:]
-    df_climate["DateClimate"] = df_climate["valid"].str.split(" ").str.get(0)
-    df_climate["TimeClimate"] = df_climate["valid"].str.split(" ").str.get(1)
-    df_climate["TimeClimate"] = df_climate["TimeClimate"].str.split(":").str.get(0) + ":00:00"
-    df_climate.drop(["valid", "station", "alti", "skyl1","skyl2","skyl3","skyl4", "ice_accretion_3hr","ice_accretion_6hr","peak_wind_gust","peak_wind_drct","peak_wind_time","feel","metar"],axis=1,inplace=True)
-    column_reorder = ["Date","Time","dwpf", "relh", "sknt", "gust", "drct", "p01i", "ice_accretion_1hr", "vsby", "skyc1", "mslp", "wxcodes"]
-    df_climate = df_climate.reindex(columns=column_reorder)
+    df_streets = pd.read_csv(zone_file, names=["link_name","coordX","coordY","zonaX","zonaY","Zone"], header=None)
+    df = pd.read_csv(location, names=["datetime","datetime_traffic","weekday","id","speed","travel_time","link_name","AQI_PM2.5","Parameter_PM2.5","Unit_PM2.5","Value_PM2.5","Category_PM2.5","AQI_OZONE","Parameter_OZONE","Unit_OZONE","Value_OZONE","Category_OZONE","Minimum Temperature","Maximum Temperature","Temperature","Dew Point","Relative Humidity","Heat Index","Wind Speed","Wind Gust","Wind Direction","Wind Chill","Precipitation","Precipitation Cover","Snow Depth","Visibility","Cloud Cover","Sea Level Pressure","Conditions"],header=None, skiprows=2)
+    os.remove(location)
+    df = pd.merge(df, df_streets, on="link_name")
+    df.drop(["coordX", "coordY", "zonaX", "zonaY"],axis=1,inplace=True)
 
-    print(df_climate.head(20))
-
-    #print(df_climate["gust"].describe())
-    #print(df_climate["ice_accretion_1hr"].describe())
-    print(df_climate["wxcodes"].describe())
-    """
-    print((df_climate["skyc1"] != "CLR").describe())
-    print(df_climate["skyc2"].describe())
-    print(df_climate["skyc3"].describe())
-    print(df_climate["skyc4"].describe())
-    """
-#pruebaClima()
-
-def prueba():
-    training_file =  os.getcwd().split("\TFG")[0] + "/TFG/historical_data/salidaManhattan.csv"
+    column_reorder = ["datetime","datetime_traffic","weekday","id","speed","travel_time","link_name","Zone","AQI_PM2.5","Parameter_PM2.5","Unit_PM2.5","Value_PM2.5","Category_PM2.5","AQI_OZONE,Parameter_OZONE","Unit_OZONE","Value_OZONE","Category_OZONE","Minimum Temperature","Maximum Temperature","Temperature","Dew Point","Relative Humidity","Heat Index","Wind Speed","Wind Gust","Wind Direction","Wind Chill","Precipitation","Precipitation Cover","Snow Depth","Visibility","Cloud Cover","Sea Level Pressure","Conditions"]
     
+    df = df.reindex(columns=column_reorder)
+    df.to_csv(location, index=False)
 
-    dftrain = pd.read_csv(training_file ) 
-
-    print(dftrain.head(20))
-
-#prueba()
 
 
 def mergeFilesWithLocation(location, outputname):
-    
+
+    file_unique_streets =  os.getcwd().split("\TFG")[0] + "/TFG/historical_data/uniqueStreets.csv"
     path = os.getcwd().split("\TFG")[0] + location
     dirs = os.listdir(path)
     df = pd.DataFrame()
-    undesired_paths = ["airQuality_dataIngestion.csv","airQuality_historical", "historical", "historical_register.csv", "traffic_dataIngestion.csv", "traffic_historical", "weather_dataIngestion.csv", "weather_historical"]
+
+    undesired_paths = ["airQuality_dataIngestion.csv","airQuality_historical", "historical", "historical_register.csv", "traffic_dataIngestion.csv", "traffic_historical", "weather_dataIngestion.csv", "weather_historical", "2021"]
     
     for file in dirs:
         
@@ -149,12 +134,18 @@ def mergeFilesWithLocation(location, outputname):
             continue
         else:
             file = path + file
-            df_concat = pd.read_csv(file, header=None, low_memory=False)
+            df_concat = pd.read_csv(file, header=None, low_memory=False) #PROBLEMA AQUI
             df = pd.concat([df,df_concat])
             print("fin" + file)
 
     print(df.shape[0])
+
     output_csv = os.getcwd().split("\TFG")[0] + location + outputname + ".csv"
     df.to_csv(output_csv, index=False)
+    mergeZones(output_csv)
+    
+    
 
 mergeFilesWithLocation("/TFG/apis_data/", "historicalMerge")
+
+#mergeFilesWithLocation("/TFG/apis_data/2021/", "trainingDataMerge")
