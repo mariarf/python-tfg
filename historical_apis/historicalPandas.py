@@ -112,7 +112,7 @@ def mergeZones(location):
     df = pd.merge(df, df_streets, on="link_name")
     df.drop(["coordX", "coordY", "zonaX", "zonaY"],axis=1,inplace=True)
 
-    column_reorder = ["datetime","datetime_traffic","weekday","id","speed","travel_time","link_name","Zone","AQI_PM2.5","Parameter_PM2.5","Unit_PM2.5","Value_PM2.5","Category_PM2.5","AQI_OZONE,Parameter_OZONE","Unit_OZONE","Value_OZONE","Category_OZONE","Minimum Temperature","Maximum Temperature","Temperature","Dew Point","Relative Humidity","Heat Index","Wind Speed","Wind Gust","Wind Direction","Wind Chill","Precipitation","Precipitation Cover","Snow Depth","Visibility","Cloud Cover","Sea Level Pressure","Conditions"]
+    column_reorder = ["datetime","datetime_traffic","weekday","id","speed","travel_time","link_name","Zone","AQI_PM2.5","Parameter_PM2.5","Unit_PM2.5","Value_PM2.5","Category_PM2.5","AQI_OZONE","Parameter_OZONE","Unit_OZONE","Value_OZONE","Category_OZONE","Minimum Temperature","Maximum Temperature","Temperature","Dew Point","Relative Humidity","Heat Index","Wind Speed","Wind Gust","Wind Direction","Wind Chill","Precipitation","Precipitation Cover","Snow Depth","Visibility","Cloud Cover","Sea Level Pressure","Conditions"]
     
     df = df.reindex(columns=column_reorder)
     df.to_csv(location, index=False)
@@ -148,4 +148,4 @@ def mergeFilesWithLocation(location, outputname):
 
 mergeFilesWithLocation("/TFG/apis_data/", "historicalMerge")
 
-#mergeFilesWithLocation("/TFG/apis_data/2021/", "trainingDataMerge")
+mergeFilesWithLocation("/TFG/apis_data/2021/", "trainingDataMerge")
