@@ -148,4 +148,4 @@ def mergeFilesWithLocation(location, outputname):
 
 mergeFilesWithLocation("/TFG/apis_data/", "historicalMerge")
 
-mergeFilesWithLocation("/TFG/apis_data/2021/", "trainingDataMerge")
+#mergeFilesWithLocation("/TFG/apis_data/2021/", "trainingDataMerge")
