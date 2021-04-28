@@ -106,13 +106,27 @@ def mergeZones(location):
     output_csv = os.getcwd().split("\TFG")[0] + location 
     zone_file = os.getcwd().split("\TFG")[0] + "/TFG/historical_data/uniqueStreets.csv"
     
-    df_streets = pd.read_csv(zone_file, names=["link_name","coordX","coordY","zonaX","zonaY","Zone"], header=None)
-    df = pd.read_csv(location, names=["datetime","datetime_traffic","weekday","id","speed","travel_time","link_name","AQI_PM2.5","Parameter_PM2.5","Unit_PM2.5","Value_PM2.5","Category_PM2.5","AQI_OZONE","Parameter_OZONE","Unit_OZONE","Value_OZONE","Category_OZONE","Minimum Temperature","Maximum Temperature","Temperature","Dew Point","Relative Humidity","Heat Index","Wind Speed","Wind Gust","Wind Direction","Wind Chill","Precipitation","Precipitation Cover","Snow Depth","Visibility","Cloud Cover","Sea Level Pressure","Conditions"],header=None, skiprows=2)
+    df_streets = pd.read_csv(zone_file, names=["link_name","coordX","coordY","zonaX","zonaY","Zone"], header=None, low_memory=False)
+    df = pd.read_csv(location, names=["datetime","datetime_traffic","weekday","id","speed","travel_time","link_name","AQI_PM2.5","Parameter_PM2.5","Unit_PM2.5","Value_PM2.5","Category_PM2.5","AQI_OZONE","Parameter_OZONE","Unit_OZONE","Value_OZONE","Category_OZONE","Minimum Temperature","Maximum Temperature","Temperature","Dew Point","Relative Humidity","Heat Index","Wind Speed","Wind Gust","Wind Direction","Wind Chill","Precipitation","Precipitation Cover","Snow Depth","Visibility","Cloud Cover","Sea Level Pressure","Conditions"],header=None, low_memory=False, skiprows=2)
     os.remove(location)
     df = pd.merge(df, df_streets, on="link_name")
     df.drop(["coordX", "coordY", "zonaX", "zonaY"],axis=1,inplace=True)
 
     column_reorder = ["datetime","datetime_traffic","weekday","id","speed","travel_time","link_name","Zone","AQI_PM2.5","Parameter_PM2.5","Unit_PM2.5","Value_PM2.5","Category_PM2.5","AQI_OZONE","Parameter_OZONE","Unit_OZONE","Value_OZONE","Category_OZONE","Minimum Temperature","Maximum Temperature","Temperature","Dew Point","Relative Humidity","Heat Index","Wind Speed","Wind Gust","Wind Direction","Wind Chill","Precipitation","Precipitation Cover","Snow Depth","Visibility","Cloud Cover","Sea Level Pressure","Conditions"]
+    
+    #print(df.columns)
+    df["Wind Gust"].fillna(0.0, inplace=True)
+    df["AQI_OZONE"].fillna(0.0, inplace=True)
+    df["Value_OZONE"].fillna(0.0, inplace=True)
+    df["Category_OZONE"].fillna(0.0, inplace=True)
+    df["Heat Index"].fillna(0.0, inplace=True)
+    df["Wind Direction"].fillna(0.0, inplace=True)
+    df["Wind Chill"].fillna(0.0, inplace=True)
+    df["Snow Depth"].fillna(0.0, inplace=True)
+    df["Category_PM2.5"].fillna(0, inplace=True)
+    df["Snow Depth"].fillna(0.0, inplace=True)
+ 
+
     
     df = df.reindex(columns=column_reorder)
     df.to_csv(location, index=False)
@@ -126,7 +140,7 @@ def mergeFilesWithLocation(location, outputname):
     dirs = os.listdir(path)
     df = pd.DataFrame()
 
-    undesired_paths = ["airQuality_dataIngestion.csv","airQuality_historical", "historical", "historical_register.csv", "traffic_dataIngestion.csv", "traffic_historical", "weather_dataIngestion.csv", "weather_historical", "2021"]
+    undesired_paths = ["airQuality_dataIngestion.csv","airQuality_historical", "historical", "historical_register.csv", "traffic_dataIngestion.csv", "traffic_historical", "weather_dataIngestion.csv", "weather_historical", "2021", "merge_other_years"]
     
     for file in dirs:
         
@@ -148,4 +162,6 @@ def mergeFilesWithLocation(location, outputname):
 
 mergeFilesWithLocation("/TFG/apis_data/", "historicalMerge")
 
-#mergeFilesWithLocation("/TFG/apis_data/2021/", "trainingDataMerge")
+mergeFilesWithLocation("/TFG/apis_data/2021/", "trainingDataMerge")
+
+#mergeFilesWithLocation("/TFG/apis_data/prueba/", "historicalMergePrueba")
