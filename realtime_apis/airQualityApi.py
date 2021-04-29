@@ -18,14 +18,13 @@ def convertTimeStr(time, from_time, to_time):
 
 #metodo que devuelve la diferencia entre la fecha local en NY y la fecha pasada por parametro
 def differenceDatetime(datetime_value):
-        tz_NY = pytz.timezone('America/New_York') 
-        current_datetime = dt.now(tz_NY)
-        #current_datetime = "2021-04-29 01:00:000000000000000"
-        current_datetime = dt.strptime(str(current_datetime)[0:-13],"%Y-%m-%d %H:%M:%S")
-        datetime_value = dt.strptime(datetime_value, "%Y-%m-%dT%H:%M:%S")
-        print(current_datetime)
-        print(datetime_value)
-        return current_datetime - datetime_value
+    tz_NY = pytz.timezone('America/New_York') 
+    current_datetime = dt.now(tz_NY)
+    current_datetime = dt.strptime(str(current_datetime)[0:-13],"%Y-%m-%d %H:%M:%S")
+    datetime_value = dt.strptime(datetime_value, "%Y-%m-%dT%H:%M:%S")
+    print(current_datetime)
+    print(datetime_value)
+    return current_datetime - datetime_value
 
 ##Metodo que se conecta con la api y guarda datos en un rango de fecha excluye la primera linea --------------------------------------------
 def airQualityDataIngestion(start_datetime, file_dir):

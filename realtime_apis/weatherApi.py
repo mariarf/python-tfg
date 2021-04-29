@@ -1,6 +1,6 @@
 import pandas as pd
 import requests, io, os
-from airQualityApi import *
+from airQualityApi import differenceDatetime 
 from datetime import datetime as dt
 from datetime import timedelta as timedelta
 
