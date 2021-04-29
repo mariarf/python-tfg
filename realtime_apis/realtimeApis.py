@@ -13,7 +13,7 @@ import threading, time, os, csv, pytz
 """
 tz_NY = pytz.timezone('America/New_York') 
 ini_datetime = dt.now(tz_NY).strftime("%Y-%m-%dT%H:%M:%S")
-ini_datetime = "2021-01-31T00:00:00"  #--------------------------------fecha para pruebas en directo
+#ini_datetime = "2021-01-31T00:00:00"  #--------------------------------fecha para pruebas en directo
 
 current_dir = os.getcwd().split("\TFG")[0] + "/TFG/pruebas_maria/"
 
@@ -35,20 +35,13 @@ def trafficApi(iter_time):
     """ Si existe el archivo de tráfico primera consulta es a partir de la hora actual
         -- mientras método de API retorne falso se espera
         -- cuando método de API retorna verdadero se escribe el valor en merge y se empieza a iterar
-    """
+    """  
+    while not trafficDataIngestion(10000, ini_datetime, traffic_file):
+        print("traffic: file not found - waiting to new values")
+        time.sleep(iter_time)
+
     write_thread = threading.Thread(target=write, args = (traffic_file,) )
-    
-    if os.path.isfile(traffic_file):
-        print("traffic: file found")
-        while not trafficDataIngestion(10000, ini_datetime, traffic_file):
-            time.sleep(iter_time)
-        write_thread.start()
-    else:
-        while not os.path.isfile(traffic_file):   #MIENTRAS NO EXISTA EL ARCHIVO PARA TRAFICO ESPERAMOS
-            print("traffic: file not found")
-            time.sleep(iter_time)
-            if trafficDataIngestion(10000, ini_datetime, traffic_file):
-                write_thread.start()
+    write_thread.start()
     
     """ Se empieza a iterar
         -- los valores para la consulta a la api se toman del último valor registrado en el archivo merge
@@ -56,14 +49,15 @@ def trafficApi(iter_time):
     count = 0 #-------------------------------------------------------contador que debe BORRARSE para hacer ejecución mas rápida
     while True:
         print(f"traffic: call {count}")
-        time.sleep(iter_time)
         traffic= pd.read_csv(merge_file)     #SE LEE EL ULTIMO REGISTRO DE FECHA REGISTRADO EN MERGE PARA TRAFICO ---borrar: de esta forma se evita que por cuestiones de computo se consulte más rápido de lo que se escribe y se haga un salto en el registro de merge
         datetime = traffic.loc[traffic.index[-1], "datetime_traffic"]
-        if trafficDataIngestion(100000, datetime, traffic_file):
-            write_thread = threading.Thread(target=write, args = (traffic_file,) )
-            write_thread.start()
-        else:
+       
+        while not trafficDataIngestion(100000, datetime, traffic_file):
             print("traffic: WAITING TO NEW VALUES")
+            time.sleep(iter_time)
+        
+        write_thread = threading.Thread(target=write, args = (traffic_file,) )
+        write_thread.start()
         count += 1 
 
 """ AirApi y Weather:
