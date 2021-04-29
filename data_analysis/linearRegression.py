@@ -25,12 +25,12 @@ def make_input_fn(data_df, label_df, num_epochs=10, shuffle=True, batch_size=32)
 def linearRegression():
 
     #training_file =  os.getcwd().split("\TFG")[0] + "/TFG/apis_data/merge_2019-01-01T00_to_2019-01-15T23.csv"
-    training_file =  os.getcwd().split("\TFG")[0] + "/TFG/apis_data/prueba/historicalMergePrueba.csv"
+    training_file =  os.getcwd().split("\TFG")[0] + "/TFG/apis_data/historicalMerge.csv"
     testing_file = os.getcwd().split("\TFG")[0] + "/TFG/apis_data/2021/trainingDataMerge.csv"
 
     dftrain = pd.read_csv(training_file, low_memory=False) # training data
     dfeval = pd.read_csv(testing_file, low_memory=False) # testing data    
-
+    print(dftrain["Snow Depth"].unique())
     #dfeval["AQI_PM2.5"] = pd.to_numeric(dfeval['AQI_PM2.5'], downcast='float')
 
     dftrain["AQI_PM2.5"] = pd.to_numeric(dftrain['AQI_PM2.5'], downcast='float')
@@ -42,8 +42,8 @@ def linearRegression():
     dftrain['Category_PM2.5'] = dftrain['Category_PM2.5'].astype(float)
     dfeval['Category_PM2.5'] = dfeval['Category_PM2.5'].astype(float)
 
-    dftrain['Snow Depth'] = dftrain['Snow Depth'].replace(["Partially cloudy", "Clear", "Rain Partially cloudy"],"0")
-    dfeval['Snow Depth'] = dfeval['Snow Depth'].replace(["Partially cloudy", "Clear", "Rain Partially cloudy"],"0")
+    dftrain['Snow Depth'] = dftrain['Snow Depth'].replace(["Partially cloudy", "Clear", "Rain Partially cloudy", "Rain", "Overcast", "Rain Overcast"],"0")
+    dfeval['Snow Depth'] = dfeval['Snow Depth'].replace(["Partially cloudy", "Clear", "Rain Partially cloudy", "Rain", "Overcast", "Rain Overcast"] ,"0")
 
     dftrain['Snow Depth'] = dftrain['Snow Depth'].astype(float)
     dfeval['Snow Depth'] = dfeval['Snow Depth'].astype(float)
