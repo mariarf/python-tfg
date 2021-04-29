@@ -140,7 +140,7 @@ def mergeFilesWithLocation(location, outputname):
     dirs = os.listdir(path)
     df = pd.DataFrame()
 
-    undesired_paths = ["airQuality_dataIngestion.csv","airQuality_historical", "historical", "historical_register.csv", "traffic_dataIngestion.csv", "traffic_historical", "weather_dataIngestion.csv", "weather_historical", "2021", "merge_other_years"]
+    undesired_paths = ["airQuality_dataIngestion.csv","airQuality_historical", "historical", "historical_register.csv", "traffic_dataIngestion.csv", "traffic_historical", "weather_dataIngestion.csv", "weather_historical", "2021", "merge_other_years", "prueba"]
     
     for file in dirs:
         
