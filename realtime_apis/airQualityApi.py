@@ -65,16 +65,12 @@ def airQualityDataIngestion(start_datetime, file_dir):
             return True
 
         return False
-    print(res.days)
     print(res.seconds)
-
     try:
-        print("holatry")
         results_df.loc[1, "Parameter"]
-        
     except:
         if res.days <= 0:
-            if res.seconds > 7200:      
+            if res.seconds <= 7200:      
                 return False
  
     results_df = results_df.rename(columns={"UTC": "datetime"}) 
@@ -100,4 +96,4 @@ def airQualityDataIngestion(start_datetime, file_dir):
     return True
   
 
-print(airQualityDataIngestion("2021-04-29T12:00:00", "pepe.csv"))
+#print(airQualityDataIngestion("2021-04-29T14:00:00", "pepe.csv"))

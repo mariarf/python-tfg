@@ -1,10 +1,13 @@
 import pandas as pd
-import os, requests, io
+import requests, io, os
+from airQualityApi import *
+from datetime import datetime as dt
+from datetime import timedelta as timedelta
 
 ##Metodo que se conecta con la api y guarda datos en un rango de fecha en NY time--------------------------------------------
-def weatherDataIngestion(datetime, file_dir):
+def weatherDataIngestion(start_datetime, file_dir):
 
-    datetime= datetime[0:-5] + "00:00"
+    datetime= start_datetime[0:-5] + "00:00"
 
     # get data from the API
     url = "https://visual-crossing-weather.p.rapidapi.com/history"
@@ -16,10 +19,26 @@ def weatherDataIngestion(datetime, file_dir):
         }
     response = requests.request("GET",url, headers=headers, params = querystring)  
     print(response.text)
+    print("maria")
     results_df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
-    if results_df.empty:
-        return False
-    if str(results_df.loc[0,"Info"]) == "No data available":
+
+    res = differenceDatetime(start_datetime)
+    print(res.seconds)
+    if results_df.empty or str(results_df.loc[0,"Info"]) == "No data available":
+        #si han pasado mas de 3 horas (10800seg) y sigue estando vacio se pasa a la se consulta para la hora anterior
+        if res.seconds > 10800:
+
+            start_ = dt.strptime(start_datetime, "%Y-%m-%dT%H:%M:%S")  - timedelta(hours=1)
+            weatherDataIngestion(str(start_).replace(" ", "T"), file_dir)
+            
+            result= pd.read_csv(file_dir)
+            result["datetime"] = pd.to_datetime(result["datetime"])
+            result.loc[0,"datetime"] = result.loc[0,"datetime"] + timedelta(hours=1)
+            result["datetime"] =  result["datetime"].dt.strftime("%Y-%m-%dT%H:%M:%S")
+            result.to_csv(file_dir, index = False)
+            
+            print(f"AirQualityApi.empty: {start_datetime}")
+            return True
         return False
     
     #tipografia de los datos,  -----------------------------------------------
@@ -35,4 +54,4 @@ def weatherDataIngestion(datetime, file_dir):
     print(f"WeatherApi: {file_dir}")
     return True
 
-#print(weatherDataIngestion("2021-04-18T11:00:00", "pepe.csv"))
+#print(weatherDataIngestion("2021-04-29T12:00:00", "pepe.csv"))
