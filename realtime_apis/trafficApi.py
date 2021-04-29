@@ -13,7 +13,9 @@ def trafficDataIngestion(datalimit, start_datetime, file_dir):
     # in place of application token, and no username or password:
     client = Socrata("data.cityofnewyork.us", None)
 
-    date = f"data_as_of >'{start_datetime}'"  #se define la fecha de inicio de la consulta
+    date = f"data_as_of>'{start_datetime}'"  #se define la fecha de inicio de la consulta
+    date = date.replace(" ", "T")
+    print(date)
     
     columns = "data_as_of, id, speed, travel_time, link_name"  #columnas que se pediran a la api
 

@@ -42,7 +42,7 @@ def airQualityDataIngestion(start_datetime, file_dir):
     # decode json data into a dict object
     data = json.loads(response.data.decode('utf-8'))
     results_df = pd.DataFrame(data)
-    res =differenceDatetime(start_datetime)
+    res = differenceDatetime(start_datetime)
 
     if results_df.empty:
         #si han pasado mas de dos horas y sigue estando vacio se pasa a la siguiente iteracion consulto para la hora anterior

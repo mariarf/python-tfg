@@ -31,22 +31,23 @@ list_merge = list_traffic + list_airQuality[1:] + list_weather[1:]
 """
 def trafficApi(iter_time):
     print("traffic: executed")
-
+    
     """ Si existe el archivo de tráfico primera consulta es a partir de la hora actual
         -- mientras método de API retorne falso se espera
         -- cuando método de API retorna verdadero se escribe el valor en merge y se empieza a iterar
     """
     write_thread = threading.Thread(target=write, args = (traffic_file,) )
+    
     if os.path.isfile(traffic_file):
         print("traffic: file found")
-        while not trafficDataIngestion(100000, ini_datetime, traffic_file):
+        while not trafficDataIngestion(10000, ini_datetime, traffic_file):
             time.sleep(iter_time)
         write_thread.start()
     else:
         while not os.path.isfile(traffic_file):   #MIENTRAS NO EXISTA EL ARCHIVO PARA TRAFICO ESPERAMOS
             print("traffic: file not found")
             time.sleep(iter_time)
-            if trafficDataIngestion(100000, ini_datetime, traffic_file):
+            if trafficDataIngestion(10000, ini_datetime, traffic_file):
                 write_thread.start()
     
     """ Se empieza a iterar
@@ -85,23 +86,25 @@ def airApi(iter_time):
     start_datetime = ini_datetime
     next_iter = False 
 
-    count = 0 #-------------------------------------------------------contador que debe BORRARSE para hacer ejecución mas rápida
     while True:
-        print(f"air: call {count}")
+        print(f"air: call {start_datetime}")
         time.sleep(iter_time)
         while not airQualityDataIngestion(start_datetime, airQuality_file):
+            print(f"air: WAITING TO NEW VALUES FOR AIRQUALITY")
             time.sleep(iter_time)
          
         write_thread = threading.Thread(target=write, args = (airQuality_file, merge_file, list_airQuality) )
         next_iter = write_thread.start()
+        next_iter = write_thread.join()
         while not next_iter:
-                print("air: WAITING TO NEW VALUES FOR TRAFFIC")
+                print(f"air: WAITING TO NEW VALUES FOR TRAFFIC {start_datetime}")
                 time.sleep(iter_time/2)
                 write_thread = threading.Thread(target=write, args = (airQuality_file,) )
-                next_iter = write_thread.start()
+                write_thread.start()
+                next_iter = write_thread.join()
+                print(next_iter)
         start_datetime = dt.strptime(str(start_datetime), "%Y-%m-%dT%H:%M:%S") + timedelta(hours=1)
         start_datetime = str(start_datetime).replace(" ","T")
-        count += 1
 
 """ write:
     *** recibe dos direcciones de archivos @file_name,  @merge_file_used y una lista @list con nombres de columnas
@@ -142,6 +145,7 @@ def write(file_name, merge_file_used=merge_file, list=[]):
             
     df0.to_csv(merge_file_used, index= False)
     print(result[2])
+    print(f"write: {next_iter}")
     return next_iter
 
 """ fileConcatMerge:   
@@ -193,14 +197,13 @@ def fileConcatMerge(df0, df1, columns):
 
 def ini():
     fileCreator(merge_file, list_merge) 
-    traffic_api = threading.Thread(target = trafficApi, args = (1,))
+    traffic_api = threading.Thread(target = trafficApi, args = (300,), name="traffic_api")
     #se espera 30mint para que esten todos los resultados 
-    air_api = threading.Thread(target=airApi, args = (5,) )
+    air_api = threading.Thread(target=airApi, args = (30,), name="air_api")
     #weather_api = threading.Thread(target=weatherApi, args = (5,) )
-    #traffic_api.start()
+    traffic_api.start()
     #air_api.start() 
-    #airApi(min_29, hour_1)
-    #weatherApi(min_29, hour_1)
+    
 
 """ fileCreator:
     *** recibe una direccion/path @file_name y una lista @list con nombres de columnas
@@ -215,3 +218,5 @@ def fileCreator(file_name, list):
                 writer = csv.DictWriter(file, fieldnames = list)
                 # writing data row-wise into the csv file
                 writer.writeheader()
+
+ini()
