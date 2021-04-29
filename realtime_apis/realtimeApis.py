@@ -13,6 +13,10 @@ import threading, time, os, csv, pytz
 """
 tz_NY = pytz.timezone('America/New_York') 
 ini_datetime = dt.now(tz_NY).strftime("%Y-%m-%dT%H:%M:%S")
+
+next_iter_airQuality = False
+next_iter_weather = False
+
 #ini_datetime = "2021-01-31T00:00:00"  #--------------------------------fecha para pruebas en directo
 
 current_dir = os.getcwd().split("\TFG")[0] + "/TFG/pruebas_maria/"
@@ -74,7 +78,45 @@ def trafficApi(iter_time):
                        Por lo que de esta forma si se consulta al pasar 1h de ejecución y la api 
                        genera el valor para cuando ha pasado 1h25min no se tiene que esperar 2h enteras.
 """
-def airApi(iter_time):
+def weatherAPI(iter_time):
+    print("weather: executed")
+
+    start_datetime = ini_datetime
+    next_iter = False 
+
+    while True:
+        print(f"weather: call {start_datetime}")
+        time.sleep(iter_time)
+        while not weatherDataIngestion(start_datetime, weather_file):
+            print(f"weather: WAITING TO NEW VALUES FOR AIRQUALITY")
+            time.sleep(iter_time)
+         
+        write_thread = threading.Thread(target=write, args = (weather_file, merge_file, list_weather) )
+        next_iter = write_thread.start()
+        next_iter = write_thread.join()
+        while not next_iter:
+                print(f"weather: WAITING TO NEW VALUES FOR TRAFFIC {start_datetime}")
+                time.sleep(iter_time/2)
+                write_thread = threading.Thread(target=write, args = (weather_file,) )
+                write_thread.start()
+                next_iter = write_thread.join()
+                print(next_iter)
+        start_datetime = dt.strptime(str(start_datetime), "%Y-%m-%dT%H:%M:%S") + timedelta(hours=1)
+        start_datetime = str(start_datetime).replace(" ","T")
+
+""" write:
+    *** recibe dos direcciones de archivos @file_name,  @merge_file_used y una lista @list con nombres de columnas
+    - Si el @file_name es el correspondiente a tráfico
+        *se registran los nuevos valores
+    - Si @merge_file_used esta en blanco
+        *se devuelve false y se sale del metodo
+    - else
+        *Se llama al metodo fileConcatMerge
+            se devuelve el resultado de la llamada
+"""
+
+
+def airApi():
     print("air: executed")
 
     start_datetime = ini_datetime
@@ -100,16 +142,15 @@ def airApi(iter_time):
         start_datetime = dt.strptime(str(start_datetime), "%Y-%m-%dT%H:%M:%S") + timedelta(hours=1)
         start_datetime = str(start_datetime).replace(" ","T")
 
-""" write:
-    *** recibe dos direcciones de archivos @file_name,  @merge_file_used y una lista @list con nombres de columnas
-    - Si el @file_name es el correspondiente a tráfico
-        *se registran los nuevos valores
-    - Si @merge_file_used esta en blanco
-        *se devuelve false y se sale del metodo
-    - else
-        *Se llama al metodo fileConcatMerge
-            se devuelve el resultado de la llamada
-"""
+
+
+
+
+
+
+
+
+
 def write(file_name, merge_file_used=merge_file, list=[]):
     print("write type:" + str(file_name))
     
@@ -127,14 +168,22 @@ def write(file_name, merge_file_used=merge_file, list=[]):
     if file_name == traffic_file:
         df0 = pd.concat([df0, df1])
         df0.to_csv(merge_file_used, index= False)
-        return True
+        return
     elif df0.shape[0] <= 0:  #es decir aun no se guardan datos de trafico
-        return False
+        global_airQuality_variable = False
+        global_weather_variable = False
+        #return False
     """ CONDICIÓN ^^Línea de arriba - if TRUE: FIN else FALSE: CONTINUE
         -- Si el documento no tiene ni un solo registro guardado no se ejecuta el resto del código
     """
     result = fileConcatMerge(df0, df1, list)
-    next_iter = result[0]
+
+    if file_name == airQuality_file:
+        next_iter_airQuality = result[0]
+        
+    else if file_name == weather_file:
+        next_iter_weather = result[0]
+    
     df0 = result[1]
             
     df0.to_csv(merge_file_used, index= False)
