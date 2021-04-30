@@ -22,14 +22,11 @@ def differenceDatetime(datetime_value):
     current_datetime = dt.now(tz_NY)
     current_datetime = dt.strptime(str(current_datetime)[0:-13],"%Y-%m-%d %H:%M:%S")
     datetime_value = dt.strptime(datetime_value, "%Y-%m-%dT%H:%M:%S")
-    print(current_datetime)
-    print(datetime_value)
     return current_datetime - datetime_value
 
 ##Metodo que se conecta con la api y guarda datos en un rango de fecha excluye la primera linea --------------------------------------------
 def airQualityDataIngestion(start_datetime, file_dir):
-    print(f"airQualityDataIngestion: {start_datetime}")
-
+    
     #pasando hora de NY a UTC para hacer la solicitud a la hora deseada
     hour_datetime = convertTimeStr(start_datetime, 'America/New_York', 'UTC')[0:13]
     
@@ -64,7 +61,7 @@ def airQualityDataIngestion(start_datetime, file_dir):
             return True
 
         return False
-    print(res.seconds)
+   
     try:
         results_df.loc[1, "Parameter"]
     except:
@@ -76,7 +73,7 @@ def airQualityDataIngestion(start_datetime, file_dir):
     results_df["datetime"] = pd.to_datetime(results_df["datetime"])
     
     results_df = results_df[["datetime", "AQI", "Parameter", "Unit", "Value", "Category"]]
-    print(results_df.head())
+ 
     
     results_df["datetime"] = results_df["datetime"].dt.tz_localize('UTC').dt.tz_convert('America/New_York').dt.strftime("%Y-%m-%dT%H:%M:%S")
 

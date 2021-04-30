@@ -18,12 +18,11 @@ def weatherDataIngestion(start_datetime, file_dir):
         'x-rapidapi-host': "visual-crossing-weather.p.rapidapi.com"
         }
     response = requests.request("GET",url, headers=headers, params = querystring)  
-    print(response.text)
-    print("maria")
+   
     results_df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
 
     res = differenceDatetime(start_datetime)
-    print(res.seconds)
+
     if results_df.empty or str(results_df.loc[0,"Info"]) == "No data available":
         #si han pasado mas de 3 horas (10800seg) y sigue estando vacio se pasa a la se consulta para la hora anterior
         if res.seconds > 10800:
@@ -37,7 +36,7 @@ def weatherDataIngestion(start_datetime, file_dir):
             result["datetime"] =  result["datetime"].dt.strftime("%Y-%m-%dT%H:%M:%S")
             result.to_csv(file_dir, index = False)
             
-            print(f"AirQualityApi.empty: {start_datetime}")
+            print(f"WeatherApi.empty: {start_datetime}")
             return True
         return False
     

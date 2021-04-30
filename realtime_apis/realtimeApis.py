@@ -13,6 +13,7 @@ import threading, time, os, csv, pytz
 """
 tz_NY = pytz.timezone('America/New_York') 
 ini_datetime = dt.now(tz_NY).strftime("%Y-%m-%dT%H:%M:%S")
+ini_datetime = "2021-04-29T18:09:00"
 
 next_iter_airQuality = False
 next_iter_weather = False
@@ -46,6 +47,7 @@ def trafficApi(iter_time):
 
     write_thread = threading.Thread(target=write, args = (traffic_file,) )
     write_thread.start()
+    time.sleep(10)
     
     """ Se empieza a iterar
         -- los valores para la consulta a la api se toman del último valor registrado en el archivo merge
@@ -62,6 +64,7 @@ def trafficApi(iter_time):
         
         write_thread = threading.Thread(target=write, args = (traffic_file,) )
         write_thread.start()
+        time.sleep(10)
         count += 1 
 
 """ AirApi y Weather:
@@ -91,12 +94,14 @@ def weatherApi(iter_time):
          
         write_thread = threading.Thread(target=write, args = (weather_file, merge_file, list_weather) )
         write_thread.start()
+        time.sleep(10)
     
         while not next_iter_weather:
                 print(f"weather: WAITING TO NEW VALUES FOR TRAFFIC {start_datetime}")
                 time.sleep(iter_time/2)
                 write_thread = threading.Thread(target=write, args = (weather_file,) )
                 write_thread.start()
+                time.sleep(10)
 
         start_datetime = dt.strptime(str(start_datetime), "%Y-%m-%dT%H:%M:%S") + timedelta(hours=1)
         start_datetime = str(start_datetime).replace(" ","T")
@@ -116,11 +121,13 @@ def airApi(iter_time):
          
         write_thread = threading.Thread(target=write, args = (airQuality_file, merge_file, list_airQuality) )
         write_thread.start()
+        time.sleep(10)
         while not next_iter_airQuality:
                 print(f"air: WAITING TO NEW VALUES FOR TRAFFIC {start_datetime}")
                 time.sleep(iter_time/2)
                 write_thread = threading.Thread(target=write, args = (airQuality_file,) )
                 write_thread.start()
+                time.sleep(10)
            
         start_datetime = dt.strptime(str(start_datetime), "%Y-%m-%dT%H:%M:%S") + timedelta(hours=1)
         start_datetime = str(start_datetime).replace(" ","T")
@@ -156,8 +163,7 @@ def write(file_name, merge_file_used=merge_file, list=[]):
         df0.to_csv(merge_file_used, index= False)
         return
     elif df0.shape[0] <= 0:  #es decir aun no se guardan datos de trafico
-        global_airQuality_variable = False
-        global_weather_variable = False
+        return
         #return False
     """ CONDICIÓN ^^Línea de arriba - if TRUE: FIN else FALSE: CONTINUE
         -- Si el documento no tiene ni un solo registro guardado no se ejecuta el resto del código
@@ -165,8 +171,7 @@ def write(file_name, merge_file_used=merge_file, list=[]):
     result = fileConcatMerge(df0, df1, list)
 
     if file_name == airQuality_file:
-        next_iter_airQuality = result[0]
-        
+        next_iter_airQuality = result[0]        
     elif file_name == weather_file:
         next_iter_weather = result[0]
     
@@ -225,10 +230,10 @@ def fileConcatMerge(df0, df1, columns):
 
 def ini():
     fileCreator(merge_file, list_merge) 
-    traffic_api = threading.Thread(target = trafficApi, args = (10*6,), name="traffic_api")
+    traffic_api = threading.Thread(target = trafficApi, args = (10*60,), name="traffic_api")
     #se espera 30mint para que esten todos los resultados 
-    air_api = threading.Thread(target=airApi, args = (30*6,), name="air_api")
-    weather_api = threading.Thread(target=weatherApi, args = (45*6,) )
+    air_api = threading.Thread(target=airApi, args = (30*60,), name="air_api")
+    weather_api = threading.Thread(target=weatherApi, args = (45*60,) )
     traffic_api.start()
     air_api.start() 
     weather_api.start()
