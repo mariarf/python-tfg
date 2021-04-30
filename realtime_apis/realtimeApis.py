@@ -34,14 +34,14 @@ list_merge = list_traffic + list_airQuality[1:] + list_weather[1:]
 
 """ METODOS PARA LLAMAR A LAS APIS
 """
-def trafficApi(iter_time):
+def trafficApi(iter_time, limit):
     print("traffic: executed")
     
     """ Si existe el archivo de tráfico primera consulta es a partir de la hora actual
         -- mientras método de API retorne falso se espera
         -- cuando método de API retorna verdadero se escribe el valor en merge y se empieza a iterar
     """  
-    while not trafficDataIngestion(10000, ini_datetime, traffic_file):
+    while not trafficDataIngestion(limit, ini_datetime, traffic_file):
         print("traffic: file not found - waiting to new values")
         time.sleep(iter_time)
 
@@ -58,7 +58,7 @@ def trafficApi(iter_time):
         traffic= pd.read_csv(merge_file)     #SE LEE EL ULTIMO REGISTRO DE FECHA REGISTRADO EN MERGE PARA TRAFICO ---borrar: de esta forma se evita que por cuestiones de computo se consulte más rápido de lo que se escribe y se haga un salto en el registro de merge
         datetime = traffic.loc[traffic.index[-1], "datetime_traffic"]
        
-        while not trafficDataIngestion(100000, datetime, traffic_file):
+        while not trafficDataIngestion(limit, datetime, traffic_file):
             print("traffic: WAITING TO NEW VALUES")
             time.sleep(iter_time)
         
@@ -171,9 +171,11 @@ def write(file_name, merge_file_used=merge_file, list=[]):
     result = fileConcatMerge(df0, df1, list)
 
     if file_name == airQuality_file:
+        global next_iter_airQuality
         next_iter_airQuality = result[0]        
     elif file_name == weather_file:
-        next_iter_weather = result[0]
+        global next_iter_weather 
+        next_iter_weather= result[0]
     
     df0 = result[1]
             
@@ -230,10 +232,10 @@ def fileConcatMerge(df0, df1, columns):
 
 def ini():
     fileCreator(merge_file, list_merge) 
-    traffic_api = threading.Thread(target = trafficApi, args = (10*60,), name="traffic_api")
+    traffic_api = threading.Thread(target = trafficApi, args = (10*30, 1000), name="traffic_api")
     #se espera 30mint para que esten todos los resultados 
-    air_api = threading.Thread(target=airApi, args = (30*60,), name="air_api")
-    weather_api = threading.Thread(target=weatherApi, args = (45*60,) )
+    air_api = threading.Thread(target=airApi, args = (30*30,), name="air_api")
+    weather_api = threading.Thread(target=weatherApi, args = (45*30,) )
     traffic_api.start()
     air_api.start() 
     weather_api.start()
