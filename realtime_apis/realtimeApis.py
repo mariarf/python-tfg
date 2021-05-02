@@ -13,7 +13,7 @@ import threading, time, os, csv, pytz
 """
 tz_NY = pytz.timezone('America/New_York') 
 ini_datetime = dt.now(tz_NY).strftime("%Y-%m-%dT%H:%M:%S")
-ini_datetime = "2021-05-01T15:00:00"
+#ini_datetime = "2021-05-01T15:00:00"
 
 next_iter_airQuality = False
 next_iter_weather = False
@@ -85,6 +85,7 @@ def weatherApi(iter_time):
     print("weather: executed")
 
     start_datetime = ini_datetime
+    global next_iter_weather 
     while True:
         print(f"weather: call {start_datetime}")
         time.sleep(iter_time)
@@ -103,7 +104,7 @@ def weatherApi(iter_time):
                 write_thread.start()
                 time.sleep(10)
 
-        global next_iter_weather
+        
         next_iter_weather = False
         start_datetime = dt.strptime(str(start_datetime), "%Y-%m-%dT%H:%M:%S") + timedelta(hours=1)
         start_datetime = str(start_datetime).replace(" ","T")
@@ -114,6 +115,8 @@ def airApi(iter_time):
     print("air: executed")
 
     start_datetime = ini_datetime
+    global next_iter_airQuality
+
     while True:
         print(f"air: call {start_datetime}")
         time.sleep(iter_time)
@@ -131,7 +134,7 @@ def airApi(iter_time):
                 write_thread.start()
                 time.sleep(10)
 
-        global next_iter_airQuality
+        
         next_iter_airQuality = False
            
         start_datetime = dt.strptime(str(start_datetime), "%Y-%m-%dT%H:%M:%S") + timedelta(hours=1)
@@ -185,7 +188,6 @@ def write(file_name, merge_file_used=merge_file, list=[]):
         return
 
     df0 = result[1]
-    print(df0.head())
     df0.to_csv(merge_file_used, index= False)
     print(result[2])
     
@@ -235,19 +237,16 @@ def fileConcatMerge(df0, df1, columns):
         df0.loc[df0.datetime == df1.loc[0,"datetime"], i]= df1.loc[0, i]
 
     result = df0["datetime"].isin(df1["datetime"]).any().any()
-    print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    print(result)
-    print(df0.head())
     sms = "fileConcatMerge: 3T_W REGISTRO CORRECTO"
     
     return[True, df0, sms]
 
 def ini():
     fileCreator(merge_file, list_merge) 
-    traffic_api = threading.Thread(target = trafficApi, args = (10, 1000), name="traffic_api")
+    traffic_api = threading.Thread(target = trafficApi, args = (15*60, 10000000), name="traffic_api")
     #se espera 30mint para que esten todos los resultados 
-    air_api = threading.Thread(target=airApi, args = (30,), name="air_api")
-    weather_api = threading.Thread(target=weatherApi, args = (45,) )
+    air_api = threading.Thread(target=airApi, args = (30*60,), name="air_api")
+    weather_api = threading.Thread(target=weatherApi, args = (45*60,) )
     traffic_api.start()
     air_api.start() 
     weather_api.start()
