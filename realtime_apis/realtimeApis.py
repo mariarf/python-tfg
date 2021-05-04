@@ -13,7 +13,7 @@ import threading, time, os, csv, pytz
 """
 tz_NY = pytz.timezone('America/New_York') 
 ini_datetime = dt.now(tz_NY).strftime("%Y-%m-%dT%H:%M:%S")
-#ini_datetime = "2021-05-01T15:00:00"
+#ini_datetime = "2021-05-03T15:00:00"
 
 next_iter_airQuality = False
 next_iter_weather = False
@@ -41,6 +41,7 @@ def trafficApi(iter_time, limit):
         -- mientras método de API retorne falso se espera
         -- cuando método de API retorna verdadero se escribe el valor en merge y se empieza a iterar
     """  
+    time.sleep(10)
     while not trafficDataIngestion(limit, ini_datetime, traffic_file):
         print("traffic: file not found - waiting to new values")
         time.sleep(iter_time)
@@ -100,7 +101,7 @@ def weatherApi(iter_time):
         while not next_iter_weather:
                 print(f"weather: WAITING TO NEW VALUES FOR TRAFFIC {start_datetime}")
                 time.sleep(iter_time/2)
-                write_thread = threading.Thread(target=write, args = (weather_file,) )
+                write_thread = threading.Thread(target=write, args = (weather_file, merge_file, list_weather) )
                 write_thread.start()
                 time.sleep(10)
 
@@ -130,7 +131,7 @@ def airApi(iter_time):
         while not next_iter_airQuality:
                 print(f"air: WAITING TO NEW VALUES FOR TRAFFIC {start_datetime}")
                 time.sleep(iter_time/2)
-                write_thread = threading.Thread(target=write, args = (airQuality_file,) )
+                write_thread = threading.Thread(target=write, args = (airQuality_file, merge_file, list_airQuality) )
                 write_thread.start()
                 time.sleep(10)
 
@@ -222,7 +223,7 @@ def fileConcatMerge(df0, df1, columns):
             -- Hay valores de tráfico mayores a la hora consulta pero NO se encontraron coincidencias
                 *return true, se registran los nuevos valores
             """
-            df0 = pd.merge(df0, df1, on=list_airQuality, how="outer", sort=True) 
+            df0 = pd.merge(df0, df1, on=columns, how="outer", sort=True) 
             sms = "fileConcatMerge: 2T_W SALTO EN VALORES DE TRÁFICO"
             return [True, df0, sms]
             
@@ -236,14 +237,13 @@ def fileConcatMerge(df0, df1, columns):
     for i in columns[1:]:
         df0.loc[df0.datetime == df1.loc[0,"datetime"], i]= df1.loc[0, i]
 
-    result = df0["datetime"].isin(df1["datetime"]).any().any()
     sms = "fileConcatMerge: 3T_W REGISTRO CORRECTO"
     
     return[True, df0, sms]
 
 def ini():
     fileCreator(merge_file, list_merge) 
-    traffic_api = threading.Thread(target = trafficApi, args = (15*60, 10000000), name="traffic_api")
+    traffic_api = threading.Thread(target = trafficApi, args = (15*60, 1000000), name="traffic_api")
     #se espera 30mint para que esten todos los resultados 
     air_api = threading.Thread(target=airApi, args = (30*60,), name="air_api")
     weather_api = threading.Thread(target=weatherApi, args = (45*60,) )

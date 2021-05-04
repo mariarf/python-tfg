@@ -43,7 +43,7 @@ def trafficDataIngestion(datalimit, start_datetime, file_dir):
     return True
 
 
-#print(trafficDataIngestion(1000000, "2021-04-29T18:09:00", "borrame.csv"))
+#print(trafficDataIngestion(100000000, "2021-05-03T18:39:02", "borrame.csv"))
 #trafficDataIngestion(1000000, "2021-03-01T00:00:00", "2021-03-31T23:59:59")
 
 
