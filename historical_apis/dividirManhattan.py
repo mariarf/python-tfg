@@ -88,11 +88,6 @@ def dividirManhattan():
     df_unico.to_csv(file_output, index=False)    
     
 
-    """
-    #print(df_espacio.head(20))
-    #print(df["LINK_POINTS"].describe())
-    #df.drop(["STATUS","LINK_ID", "LINK_POINTS", "ENCODED_POLY_LINE", "ENCODED_POLY_LIKE_LVLS", "OWNER", "TRANSCOM_ID"],axis=1,inplace=True)
-    """
 
 
 
@@ -121,29 +116,43 @@ def mostrarPuntos():
     #plt.show()
 
 
+# This method is meant to divide the different zones of Manhattan from the values of uniqueStreets file. This file contains the mean coordinate of each of the streets that
+# contain traffic data. 
+# We will start by opening the file with the unique streets and loading it into a Pandas dataFrame. 
 
 def zonaManhattan():
     file =  os.getcwd().split("\TFG")[0] + "/TFG/historical_data/uniqueStreets.csv"
 
     df=pd.read_csv(file, names=["Link_name", "coordX", "coordY"], skiprows=1)
 
+
+    #For the division in zones we will divide Manhattan's x value into 8 zones and Manhattan's Y values into 5 zones. There will be therefore 40 different zones. 
+    #To calculate the zone for each of the coordinates we substract the value of that coordinate to the maximum value and divide by the division we have made for the zones.
     divisionX = (df["coordX"].max() - df["coordX"].min()) /8
     divisionY = (df["coordY"].max() - df["coordY"].min()) /5
     df["zonaX"] = abs(( df["coordX"] - df["coordX"].max()) / divisionX)
     df["zonaY"] = abs(( df["coordY"] - df["coordY"].max() ) / divisionY)
 
+    #converting the X and Y values to int to get the exact zone where they land. Example: if the value is 5.88 it will be in zone 5
     df["zonaX"] = df["zonaX"].astype(int)
     df["zonaY"] = df["zonaY"].astype(int)
 
+    #we will convert the values to string to concatenate them and get the zone.
     df["zonaX"] = df["zonaX"].astype(str)
     df["zonaY"] = df["zonaY"].astype(str)
 
+
+    #We concatenate the values and get the zone. It works as follows:
+    #If a X coordinate is in zone 5 and a Y coordinate is in zone 3, the value of the zone will be 53.
     df["zona"] = df["zonaX"] + df["zonaY"]
 
+    #we will save the dataframe to the file specified. 
     df.to_csv(file, index=False)
 
 
-dividirManhattan() 
+
+
+#dividirManhattan() 
 
 #zonaManhattan()
 
