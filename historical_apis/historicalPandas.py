@@ -130,16 +130,17 @@ def mergeZones(location):
     
     #to avoid columns that contain NaN values and give error when processing the data, we will replace them with the value of 0.0. Later on in the data analysis 
     # the data will be cleaned up even more so that there are no errors.
-    df["Wind Gust"].fillna(0.0, inplace=True)
-    df["AQI_OZONE"].fillna(0.0, inplace=True)
-    df["Value_OZONE"].fillna(0.0, inplace=True)
-    df["Category_OZONE"].fillna(0.0, inplace=True)
-    df["Heat Index"].fillna(0.0, inplace=True)
-    df["Wind Direction"].fillna(0.0, inplace=True)
-    df["Wind Chill"].fillna(0.0, inplace=True)
-    df["Snow Depth"].fillna(0.0, inplace=True)
-    df["Category_PM2.5"].fillna(0, inplace=True)
-    df["Snow Depth"].fillna(0.0, inplace=True)
+    
+    # df["Wind Gust"].fillna(0.0, inplace=True)
+    # df["AQI_OZONE"].fillna(0.0, inplace=True)
+    # df["Value_OZONE"].fillna(0.0, inplace=True)
+    # df["Category_OZONE"].fillna(0.0, inplace=True)
+    # df["Heat Index"].fillna(0.0, inplace=True)
+    # df["Wind Direction"].fillna(0.0, inplace=True)
+    # df["Wind Chill"].fillna(0.0, inplace=True)
+    # df["Snow Depth"].fillna(0.0, inplace=True)
+    # df["Category_PM2.5"].fillna(0, inplace=True)
+    # df["Snow Depth"].fillna(0.0, inplace=True)
  
 
     #changing the column order and saving the dataframe to the file with the same name
