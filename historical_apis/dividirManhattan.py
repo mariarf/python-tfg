@@ -89,18 +89,18 @@ def dividirManhattan():
     
 
 
-
+#This method is a representation of the street coordinates in a graph
 
 def mostrarPuntos():
-    
+    #opening the file where we have the unique streets with the coordinates
     file_to_open =  os.getcwd().split("\TFG")[0] + "/TFG/historical_data/uniqueStreets.csv"
     df=pd.read_csv(file_to_open, names=["Link_name", "coordX", "coordY", "zonaX", "zonaY", "zona"], skiprows=1)
 
-    
+    #dividing the zones for the xticks and yticks in the graph
     divisionX = round((df["coordX"].max() - df["coordX"].min()) /8, 2)
     divisionY = round((df["coordY"].max() - df["coordY"].min()) /5 ,2)
  
-    
+    #creating the scatter diagram with coordX and coordY values and adding useful information
     plt.scatter(df["coordX"], df["coordY"])
     plt.title("Link Points - Manhattan")
     plt.xlabel("x coordinate")
@@ -114,6 +114,8 @@ def mostrarPuntos():
     
     #df.plot(kind='scatter',x="coordX" ,y="coordY",color='red')
     #plt.show()
+
+
 
 
 # This method is meant to divide the different zones of Manhattan from the values of uniqueStreets file. This file contains the mean coordinate of each of the streets that
