@@ -92,4 +92,4 @@ def airQualityDataIngestion(start_datetime, file_dir):
     return True
   
 
-#print(airQualityDataIngestion("2021-04-29T14:00:00", "pepe.csv"))
+#print(airQualityDataIngestion("2021-05-01T06:00:00", "pepe.csv"))
